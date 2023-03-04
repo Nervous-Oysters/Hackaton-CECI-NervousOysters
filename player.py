@@ -11,10 +11,11 @@ def load_json(filename):
 
 class Player():
 
-    def __init__(self, filename, sprites_folder, position, direction, animation="t-pose_60", size=100):
+    def __init__(self, filename, sprites_folder, position, bar_position, direction, size=100, animation="t-pose_60"):
         player_characteristics = load_json(filename)
         self.name = player_characteristics.get("name")
         self.pv = player_characteristics.get("pv")
+        self.max_pv = self.pv
         self.stats = player_characteristics.get("stats")
 
         self.size = size
@@ -29,28 +30,23 @@ class Player():
 
         self.position = position
         self.direction = direction
+        self.bar_position = bar_position
+        self.health_bar = self.get_health_bar()
 
         self.animations = player_characteristics.get("animations")
 
-    def get_pv(self):
-        return self.pv
-
-    def get_stats(self):
-        return self.stats
-
-    def get_specific_stat(self, stat_name):
-        return self.stats.get(stat_name)
-
-    def get_name(self):
-        return self.name
-
-    def get_animations(self):
-        return self.animations
-
-    def get_pos(self):
-        return self.position
+    def damage(self, amount):
+        self.pv -= amount
+        return self.is_dead()
+        
+    def is_dead(self):
+        return self.pv <= 0
+    
+    def get_health_bar(self):
+        return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv), self.size/5)
 
     def update(self):
+        self.health_bar = self.get_health_bar()
         self.frame_counter += 1
         if self.frame_counter >= self.animation_speed:
             self.frame_counter = 0
@@ -68,3 +64,4 @@ class Player():
     def update_image(self, path):
         self.image = pygame.image.load(path)
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
+        
