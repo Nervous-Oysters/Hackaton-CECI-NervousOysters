@@ -47,9 +47,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
-        self.p1_choice = [0]*3
+        self.p1_choice = ["direction", 0]
         self.player2 = player2
-        self.p2_choice = [0]*3
+        self.p2_choice = ["direction", 0]
         self.spells = [] # contains all objects Spell
         self.on_menu = True
         
@@ -99,7 +99,23 @@ class Game:
             if event.type == pygame.QUIT:
                 self.on_menu = False
                 self.running = False
+        choose1 = Mainpipe.choose_player(self.handle_cam()[0])
+        if choose1:
+            if self.p1_choice[0] == choose1:
+                self.p1_choice[1] += 1
+                if self.p1_choice[1] == 120: # 2 secondes
+                    self.set_p1(choose1)
+            else:
+                self.p1_choice = [choose1, 0]
         
+        choose2 = Mainpipe.choose_player(self.handle_cam()[1])
+        if choose2:
+            if self.p1_choice[0] == choose2:
+                self.p1_choice[1] += 1
+                if self.p1_choice[1] == 120: # 2 secondes
+                    self.set_p1(choose2)
+            else:
+                self.p1_choice = [choose2, 0]
         
                 
     def handle_cam(self):
