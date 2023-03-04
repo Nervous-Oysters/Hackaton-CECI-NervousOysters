@@ -58,11 +58,11 @@ class Player():
             self.update_image(self.current_animation + "/" + self.sprites_list[self.sprite_index])
             
     def change_animation(self, animation:str):
-        self.current_animation = animation # example : t-pose_60
-        self.sprites_list = os.listdir(self.sprites_folder + "/" + self.current_animation) # Hubert/t-pose_60/*
-        self.sprite_index = 0
-        self.update_image(self.sprites_folder + self.current_animation + self.sprites_list[self.sprite_index])
-        self.animation_speed = int(self.sprites_folder.split('_')[-1]) # nb of frame before update
+        self.current_animation = self.sprites_folder + animation # example : Hubert/t-pose_60
+        self.sprites_list = os.listdir(self.current_animation) # Hubert/t-pose_60/*
+        self.sprite_index = 0 
+        self.update_image(self.current_animation + "/" + self.sprites_list[self.sprite_index])
+        self.animation_speed = int(self.current_animation.split('_')[-1]) # nb of frame before update
         self.frame_counter = 0
     
     def update_image(self, path):
