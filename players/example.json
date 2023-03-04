@@ -1,0 +1,13 @@
+{
+  "name": "example",
+  "pv": 100,
+  "stats": {
+    "offense": 3,
+    "defense": 4,
+    "speed": 2
+  },
+  "animations": {
+    "standby": "standby/",
+    "basic_spell": "basic_spell/"
+  }
+}
