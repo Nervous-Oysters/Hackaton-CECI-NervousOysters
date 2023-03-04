@@ -1,11 +1,10 @@
 import speech_recognition as sr
 from pynput import mouse, keyboard
 
-recognizer = sr.Recognizer()
-microphone = sr.Microphone()
-
 keyboard_controller = keyboard.Controller()
 mouse_controller = mouse.Controller()
+
+
 
 def recognize_speech_from_mic(recognizer, microphone):
     """Transcribe speech from recorded from `microphone`.
@@ -23,8 +22,9 @@ def recognize_speech_from_mic(recognizer, microphone):
     if not isinstance(microphone, sr.Microphone): raise TypeError("`microphone` must be `Microphone` instance")
 
     with microphone as source:
-        recognizer.adjust_for_ambient_noise(source, duration=1.0) # duration : shorter respond faster (recommend no less than 0.5)
-        audio = recognizer.listen(source)
+        recognizer.adjust_for_ambient_noise(source, duration=0.5) # duration : shorter respond faster (recommend no less than 0.5)
+        audio = recognizer.listen(source, timeout=2)
+        print("done listening")
 
     # set up the response object
     response = {
@@ -33,7 +33,7 @@ def recognize_speech_from_mic(recognizer, microphone):
         "transcription": None
     }
     try:
-        response["transcription"] = recognizer.recognize_google(audio, language='fr-FR', show_all=True)  
+        response["transcription"] = recognizer.recognize_google(audio, language='en-US', show_all=True)
     except sr.RequestError:
         # API was unreachable or unresponsive
         response["success"] = False
@@ -44,4 +44,4 @@ def recognize_speech_from_mic(recognizer, microphone):
     print(response)
     return response
 
-recognize_speech_from_mic(recognizer, microphone)
+#recognize_speech_from_mic(recognizer, microphone)
