@@ -60,6 +60,15 @@ def defense_move3(person):#jumping jack
                     return True
     return False
 
+def choose_player(person):
+    # 5:left shoulder,6: right shoulder, 7: left elbow, 8:right elbow, 9:left wrist, 10:right wrist && 0= y, 1 = x
+    if (person[6][0]-person[10][0]) > 2*abs(person[6][1] - person[10][1]):
+        return 1
+    if person[6][1] < person[8][1] and person[8][1] < person[10][1]:
+        return 0
+    if person[6][1] > person[8][1] and person[8][1] > person[10][1]:
+        return 2
+    return "please choose"
 
 def recognise_mult_people(): #https://github.com/nicknochnack/MultiPoseMovenetLightning/blob/main/MultiPose%20MoveNet%20Tutorial.ipynb
     model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
@@ -77,7 +86,7 @@ def recognise_mult_people(): #https://github.com/nicknochnack/MultiPoseMovenetLi
         #keypoints_with_scores[Ø] would be first person 1-> would be second person etc
         #loop_through_people(frame, keypoints_with_scores, EDGES, 0.1)#not needed just draws
         #print(defense_move2(keypoints_with_scores[0]) or defense_move1(keypoints_with_scores[0]))
-        print(defense_move3(keypoints_with_scores[0]))
+        print(choose_player( keypoints_with_scores[0]))
         cv2.imshow('Multi-person pose', frame)
 
         if cv2.waitKey(10) & 0xFF == ord('q'):
