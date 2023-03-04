@@ -11,7 +11,7 @@ def load_json(filename):
 
 class Player():
 
-    def __init__(self, filename, sprites_folder, position, bar_position, direction, size=100, animation="t-pose_60"):
+    def __init__(self, filename, sprites_folder, position, bar_position, direction:bool, pose, size=100, animation="t-pose_60"):
         player_characteristics = load_json(filename)
         self.name = player_characteristics.get("name")
         self.pv = player_characteristics.get("pv")
@@ -33,6 +33,8 @@ class Player():
         self.bar_position = bar_position
         self.health_bar = self.get_health_bar()
 
+        self.pose = pose
+
         self.animations = player_characteristics.get("animations")
 
     def damage(self, amount):
@@ -45,7 +47,8 @@ class Player():
     def get_health_bar(self):
         return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv), self.size/5)
 
-    def update(self):
+    def update(self, pose):
+        self.pose = pose
         self.health_bar = self.get_health_bar()
         self.frame_counter += 1
         if self.frame_counter >= self.animation_speed:

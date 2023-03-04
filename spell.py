@@ -9,7 +9,8 @@ class Spell():
         self.damage = damage
         self.from_player = from_player
         self.to_player = to_player
-        self.direction = self.from_player.position[0] < self.to_player.position[0] # true : left -> right
+        #self.direction = self.from_player.position[0] < self.to_player.position[0] # true : left -> right
+        self.direction = self.from_player.direction
                 
         self.animation_folder = "animations/" + animation_folder # animations/fire-ball_20
         self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_20/*
