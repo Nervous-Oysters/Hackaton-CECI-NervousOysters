@@ -12,7 +12,7 @@ def recognise_one_person():
     mp_draw = mp.solutions.drawing_utils  # drawing utilities
     mp_holistic = mp.solutions.holistic  # our holistic module
     webcam = cv2.VideoCapture(0)
-    with mp_holistic.Holistic(min_detection_confidence=0.8, min_tracking_confidence=0.8) as holistic:
+    with mp_holistic.Holistic(min_detection_confidence=0.6, min_tracking_confidence=0.6) as holistic:
         while webcam.isOpened:
             ret, frame = webcam.read()
 
@@ -107,5 +107,4 @@ def draw_connections(frame, keypoints, edges, confidence_threshold):
 
 
 if __name__ == "__main__":
-    #recognise_mult_people()
-    recognise_one_person()
+    recognise_mult_people()
