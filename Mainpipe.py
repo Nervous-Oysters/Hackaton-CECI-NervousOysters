@@ -73,7 +73,6 @@ def choose_player(person):
 def recognise_mult_people(): #https://github.com/nicknochnack/MultiPoseMovenetLightning/blob/main/MultiPose%20MoveNet%20Tutorial.ipynb
     model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
     movenet = model.signatures['serving_default']
-
     webcam = cv2.VideoCapture(0)
     while webcam.isOpened():
         ret, frame = webcam.read()

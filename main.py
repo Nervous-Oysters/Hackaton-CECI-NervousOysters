@@ -1,13 +1,15 @@
 import pygame
-import pygame_menu
-
+import tensorflow as tf
+import tensorflow_hub as hub
+import cv2
+import Mainpipe
 import voice_recognition
 from player import Player
 from spell import Spell
 import numpy as np
 import speech_recognition as sr
 import pyaudio
-pa = pyaudio.PyAudio()
+""" pa = pyaudio.PyAudio()
 chosen_device_index = -1
 for x in range(0,pa.get_device_count()):
     info = pa.get_device_info_by_index(x)
@@ -18,12 +20,12 @@ for x in range(0,pa.get_device_count()):
 
 
 recognizer = sr.Recognizer()
-microphone = sr.Microphone(8)
+microphone = sr.Microphone()
 
-player_list = ["penguin", "bear"]
+player_list = ["penguin", "bear"] """
 
 
-def get_player_name():
+""" def get_player_name():
     player_choice = voice_recognition.recognize_speech_from_mic(recognizer, microphone)
     # player_choice_list = player_choice.split(" ")
     for alternative in player_choice["transcription"]["alternative"]:
@@ -31,21 +33,29 @@ def get_player_name():
         for word in current:
             if word.lower() in player_list:
                 return word
+ """
 
-
-def set_difficulty(*args, **kwargs):
+""" def set_difficulty(*args, **kwargs):
     pass
-
+ """
 
 class Game:
-    def __init__(self, screen, background, player1: Player, player2: Player) -> None:
+    def __init__(self, screen, background, menu, player1=None, player2=None) -> None:
         self.screen = screen
         self.background = background
+        self.menu = menu
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
+        self.p1_choice = [0]*3
         self.player2 = player2
+        self.p2_choice = [0]*3
         self.spells = [] # contains all objects Spell
+        self.on_menu = True
+        
+        self.model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
+        self.movenet = self.model.signatures['serving_default']
+        self.webcam = cv2.VideoCapture(0)
         
         
     def handling_events(self):
@@ -84,33 +94,55 @@ class Game:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
         
-    
+    def handle_menu(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.on_menu = False
+                self.running = False
+        
+        
+                
+    def handle_cam(self):
+        ret, frame = self.webcam.read()
+        image = frame.copy()
+        image = tf.expand_dims(image, axis=0)
+        # Resize and pad the image to keep the aspect ratio and fit the expected size.
+        image = tf.cast(tf.image.resize_with_pad(image, 192, 192), dtype=tf.int32)
+        results = self.movenet(image)
+        return results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
     
     def run(self):
         while self.running:
+            while self.player1 == None:
+                self.handle_menu()
+                self.screen.blit(self.menu, (0,0))
+                pygame.display.flip()
+                self.clock.tick(60)
             self.handling_events()
             self.update()
             self.display()
             self.clock.tick(60)
             
 
-screen_size = (1920, 1080)
+screen_size = (1080, 720)
             
 if __name__ == "__main__":
     players_size = screen_size[0]/10
     p1_pos = (screen_size[0]/10, screen_size[1]*2/3)
     p1_bar_pos = (screen_size[0]/5, screen_size[1]/10)
-    print(f"pos 1 : {p1_pos}, bar1 : {p1_bar_pos}")
     p1 = Player("players/example.json", "sprites/", p1_pos, p1_bar_pos, True, players_size)
     p2_pos = (screen_size[0] - p1_pos[0] - players_size, p1_pos[1])
     p2_bar_pos = (screen_size[0] - p1_bar_pos[0] - players_size, p1_bar_pos[1])
-    print(f"pos 2 : {p2_pos}, bar2 : {p2_bar_pos}")
     p2 = Player("players/example.json", "sprites/", p2_pos, p2_bar_pos, True, players_size)
     bg = pygame.image.load("background.jpg")
     bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
+    menu = pygame.image.load("menu.jpg")
+    menu = pygame.transform.scale(menu, screen_size)
     
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
-    game = Game(screen, bg, p1, p2)
+    game = Game(screen, bg, menu, p1, p2)
     game.run()
+    game.webcam.release()
+    cv2.destroyAllWindows()
     pygame.quit()
