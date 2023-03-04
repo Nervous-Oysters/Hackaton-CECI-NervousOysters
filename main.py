@@ -1,10 +1,44 @@
 import pygame
+import pygame_menu
+
+import voice_recognition
 from player import Player
 from spell import Spell
 import numpy as np
+import speech_recognition as sr
+import pyaudio
+pa = pyaudio.PyAudio()
+chosen_device_index = -1
+for x in range(0,pa.get_device_count()):
+    info = pa.get_device_info_by_index(x)
+    print(pa.get_device_info_by_index(x))
+    if info["name"] == "pulse":
+        chosen_device_index = info["index"]
+        print("Chosen index: ", chosen_device_index)
+
+
+recognizer = sr.Recognizer()
+microphone = sr.Microphone(8)
+
+player_list = ["penguin", "bear"]
+
+
+def get_player_name():
+    player_choice = voice_recognition.recognize_speech_from_mic(recognizer, microphone)
+    # player_choice_list = player_choice.split(" ")
+    for alternative in player_choice["transcription"]["alternative"]:
+        current = alternative["transcript"].split(" ")
+        for word in current:
+            if word.lower() in player_list:
+                return word
+
+
+def set_difficulty(*args, **kwargs):
+    pass
+
 
 class Game:
-    def __init__(self, screen, background, player1:Player, player2:Player) -> None:
+    def __init__(self, screen, background, player1: Player, player2: Player) -> None:
         self.screen = screen
         self.background = background
         self.clock = pygame.time.Clock()
@@ -49,6 +83,8 @@ class Game:
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
+        
+    
     
     def run(self):
         while self.running:
@@ -61,8 +97,15 @@ class Game:
 screen_size = (1920, 1080)
             
 if __name__ == "__main__":
-    p1 = Player("players/example.json", "sprites/", (100,500), (200, 100), True, screen_size[0]/10)
-    p2 = Player("players/example.json", "sprites/", (800,500), (600, 100), True, screen_size[0]/10)
+    players_size = screen_size[0]/10
+    p1_pos = (screen_size[0]/10, screen_size[1]*2/3)
+    p1_bar_pos = (screen_size[0]/5, screen_size[1]/10)
+    print(f"pos 1 : {p1_pos}, bar1 : {p1_bar_pos}")
+    p1 = Player("players/example.json", "sprites/", p1_pos, p1_bar_pos, True, players_size)
+    p2_pos = (screen_size[0] - p1_pos[0] - players_size, p1_pos[1])
+    p2_bar_pos = (screen_size[0] - p1_bar_pos[0] - players_size, p1_bar_pos[1])
+    print(f"pos 2 : {p2_pos}, bar2 : {p2_bar_pos}")
+    p2 = Player("players/example.json", "sprites/", p2_pos, p2_bar_pos, True, players_size)
     bg = pygame.image.load("background.jpg")
     bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
     
