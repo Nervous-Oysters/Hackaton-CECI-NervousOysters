@@ -1,10 +1,18 @@
 import pygame
+import json
+
+
+def load_json(filename):
+    with open(filename) as file:
+        return json.load(file)
 
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, player_characteristics, position, direction):
+    def __init__(self, filename, position, direction):
         super().__init__(self)
+
+        player_characteristics = load_json(filename)
         self.name = player_characteristics.get("name")
         self.pv = player_characteristics.get("pv")
         self.stats = player_characteristics.get("stats")
@@ -13,7 +21,6 @@ class Player(pygame.sprite.Sprite):
         self.direction = direction
 
         self.animations = player_characteristics.get("animations")
-
 
     def get_pv(self):
         return self.pv
