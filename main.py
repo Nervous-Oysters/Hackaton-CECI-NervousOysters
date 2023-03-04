@@ -39,22 +39,15 @@ def set_difficulty(*args, **kwargs):
 
 class Game:
     def __init__(self, screen, background, player1: Player, player2: Player) -> None:
-        """_summary_
-
-        Args:
-            screen (surface): _description_
-            background (image): _description_
-            player1 (_type_): _description_
-            player2 (_type_): _description_
-        """
         self.screen = screen
         self.background = background
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
         self.player2 = player2
-        self.spells = []
-
+        self.spells = [] # contains all objects Spell
+        
+        
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -62,53 +55,62 @@ class Game:
                     self.running = False
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.spells.append(
-                            Spell("fire-ball_20", 5, self.player1, self.player2))  # spell(animation, damage, from, to)
-
+                        self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                    if event.key == pygame.K_RIGHT:
+                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player1.size))
+                    
     def update(self):
         self.player1.update()
         self.player2.update()
         to_remove = []
         for spell in self.spells:
-            if spell.update() == "shooted": to_remove.append(spell)
+            if spell.update() == "shooted": 
+                to_remove.append(spell)
+                if spell.apply_damage():
+                    # is dead
+                    pass
         for remove in to_remove:
             self.spells.remove(remove)
-
+                
+    
     def display(self):
-        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.background, (0,0))
         self.screen.blit(self.player1.image, self.player1.position)
         self.screen.blit(self.player2.image, self.player2.position)
+        color = (0, 204, 0)
+        pygame.draw.rect(screen, color, self.player1.health_bar)
+        pygame.draw.rect(screen, color, self.player2.health_bar)
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
-
+        
+    
+    
     def run(self):
         while self.running:
             self.handling_events()
             self.update()
             self.display()
             self.clock.tick(60)
+            
 
-
-screen_size = (1080, 720)
-
+screen_size = (1920, 1080)
+            
 if __name__ == "__main__":
-    p1 = Player("players/example.json", "sprites/", (100, 500), True)
-    p2 = Player("players/example.json", "sprites/", (800, 500), True)
-    player_size = np.array((1, 1))
+    players_size = screen_size[0]/10
+    p1_pos = (screen_size[0]/10, screen_size[1]*2/3)
+    p1_bar_pos = (screen_size[0]/5, screen_size[1]/10)
+    print(f"pos 1 : {p1_pos}, bar1 : {p1_bar_pos}")
+    p1 = Player("players/example.json", "sprites/", p1_pos, p1_bar_pos, True, players_size)
+    p2_pos = (screen_size[0] - p1_pos[0] - players_size, p1_pos[1])
+    p2_bar_pos = (screen_size[0] - p1_bar_pos[0] - players_size, p1_bar_pos[1])
+    print(f"pos 2 : {p2_pos}, bar2 : {p2_bar_pos}")
+    p2 = Player("players/example.json", "sprites/", p2_pos, p2_bar_pos, True, players_size)
     bg = pygame.image.load("background.jpg")
-    bg = pygame.transform.scale(bg, screen_size)  # transform, doesn't cut
-
+    bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
+    
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
-    pg_menu = pygame_menu.Menu('Bienvenue', 400, 300, theme=pygame_menu.themes.THEME_BLUE)
-
-    first_player = pg_menu.add.selector('Joueur 1:', [('pingouin', 1), ('ours', 2)], onchange=set_difficulty)
-    second_player = pg_menu.add.selector('Joueur 2:', [('pingouin', 1), ('ours', 2)], onchange=set_difficulty)
-
     game = Game(screen, bg, p1, p2)
-    first_player.set_value(player_list.index(get_player_name()))
-    second_player.set_value(player_list.index(get_player_name()))
-    pg_menu.mainloop(game.screen)
     game.run()
     pygame.quit()
