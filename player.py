@@ -42,7 +42,7 @@ class Player():
         return self.stats.get(stat_name)
 
     def get_name(self):
-        return self.get_name()
+        return self.name
 
     def get_animations(self):
         return self.animations
