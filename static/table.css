@@ -1,0 +1,22 @@
+table {
+    width: 90%;
+    height: 90%;
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+table th {
+    border: 1px solid #000000;
+    padding: 5px;
+    background: #f0f0f0;
+    color: #313030;
+}
+
+table td {
+    border: 1px solid #000000;
+    text-align: center;
+    padding: 5px;
+    background: #ffffff;
+    color: #313030;
+}
