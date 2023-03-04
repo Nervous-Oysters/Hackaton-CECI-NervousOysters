@@ -44,10 +44,11 @@ def recognise_mult_people(): #https://github.com/nicknochnack/MultiPoseMovenetLi
     webcam = cv2.VideoCapture(0)
     while webcam.isOpened():
         ret, frame = webcam.read()
-        img = frame.copy()
-        img = tf.image.resize_with_pad(tf.expand_dims(img, axis=0), 384, 640)
-        input_img = tf.cast(img, dtype=tf.int32)
-        results = movenet(input_img)
+        image = frame.copy()
+        image = tf.expand_dims(image, axis=0)
+        # Resize and pad the image to keep the aspect ratio and fit the expected size.
+        image = tf.cast(tf.image.resize_with_pad(image, 192, 192), dtype=tf.int32)
+        results = movenet(image)
         keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
         #keypoints_with_scores[Ø] would be first person 1-> would be second person etc
         loop_through_people(frame, keypoints_with_scores, EDGES, 0.1)
@@ -102,6 +103,8 @@ def draw_connections(frame, keypoints, edges, confidence_threshold):
 
         if (c1 > confidence_threshold) & (c2 > confidence_threshold):
             cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 4)
+
+
 
 if __name__ == "__main__":
     recognise_mult_people()
