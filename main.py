@@ -73,11 +73,11 @@ class Game:
             if str_spell[2] == 1:
                 if self.player1.is_my_turn:
                     pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20, name=str_spell[3]))
+                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=40, name=str_spell[3]))
             else:
                 if self.player2.is_my_turn:
                     pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20, name=str_spell[3]))
+                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=40, name=str_spell[3]))
         os.remove("spells.csv")
 
     def handling_events(self):
@@ -290,12 +290,18 @@ class Game:
                     pass
 
     def run(self):
+        counter = 0
         music_thread_intro = threading.Thread(target=self.handle_music_intro)
         try:
             music_thread_intro.start()
         except:
             pass
         while self.running:
+            while counter<180:
+                self.screen.blit("images/Logo.png", (0, 0))
+                pygame.display.flip()
+                counter +=1
+
             while self.player1 == None or self.player2 == None:
                 self.handle_menu()
                 self.current_change_frame = (self.current_change_frame + 1) % self.change_rate

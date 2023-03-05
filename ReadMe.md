@@ -8,7 +8,7 @@ ReadMe PingWiz
 - To choose your player, you have to point your right arm to the left, straight upwards or right which will choose either the first,second or third penguin. Both players can choose at the same time
 - Once your player is choosen, the game will start
 - The first player will be the first to attack, you will have between 1-6 seconds to choose which spell to cast. To cast a spell, you will press the button corresponding to the spell you want to cast. You have the choice between: fire, water, wind, energy or oysters
-- The attack which does the most damage is oyster then fire/energy then water/wind
+- Every attack deals the same damage points
 - In the meantime, the other player has to defend themselves. To do this, they have to move in a defense position fast enough, 
 If the spell is blue (which indicates a water/wind spell) they must sweep their right arm in front of their chest in a v shape (with elbow lower than both shoulder and hand)
 If the spell is red (which indicates a fire/energy spell) they must put both their hands in the air

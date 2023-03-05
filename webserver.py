@@ -15,13 +15,18 @@ def player1():
     return render_template("game.html", player_no=1)
 
 
+spell_corresp = {
+    "fire": "fire-ball_10" ,
+    "ultimate": "send-oyster_10"
+}
+
 @app.route("/cast", methods=['POST'])
 def cast():
     player_id = request.form.get("player")
     spell_name = request.form.get("spellName")
     # main.pre_process_spells.append(("fire-ball_10", 5,player_id))
     with open("spells.csv","w") as file:
-        file.write(f"fire-ball_10,5,{player_id},{spell_name}")
+        file.write(f"{spell_corresp[spell_name]},5,{player_id},{spell_name}")
     return "success!"
 
 
