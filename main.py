@@ -106,6 +106,8 @@ class Game:
                         animations.append(Animation("fire-head_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
                         animations.append(Animation("oyster-hit_2", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
+                    if spell.name == "water":
+                        animations.append(Animation("water-hit", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
                     if spell.apply_damage():
                         #is dead so need penguin to fall and after 3 seconds lance victory screen
                         print("you're dead")
@@ -118,6 +120,8 @@ class Game:
                         animations.append(Animation("fire-protect_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
                         animations.append(Animation("oyster-protect_1", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
+                    if spell.name == "water":
+                        animations.append(Animation("water-protect", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
         to_remove_animation = []
         for animation in animations:
             if animation.update() == "end":
@@ -301,8 +305,8 @@ class Game:
         while self.running:
             while counter<300:
                 bootimage = pygame.image.load("images/Logo.png")
-                bootimage = pygame.transform.scale(bootimage, (800,800))
-                self.screen.blit(bootimage, (0,0))
+                bootimage = pygame.transform.scale(bootimage, (1000,1000))
+                self.screen.blit(bootimage, (460,0))
                 pygame.display.flip()
                 self.clock.tick(60)
                 counter +=1
