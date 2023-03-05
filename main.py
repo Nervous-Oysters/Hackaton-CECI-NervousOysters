@@ -5,41 +5,10 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import cv2
 import Mainpipe
-import voice_recognition
 from player import Player
 from spell import Spell
 import numpy as np
-import speech_recognition as sr
 import pyaudio
-""" pa = pyaudio.PyAudio()
-chosen_device_index = -1
-for x in range(0,pa.get_device_count()):
-    info = pa.get_device_info_by_index(x)
-    print(pa.get_device_info_by_index(x))
-    if info["name"] == "pulse":
-        chosen_device_index = info["index"]
-        print("Chosen index: ", chosen_device_index)
-
-
-recognizer = sr.Recognizer()
-microphone = sr.Microphone()
-
-player_list = ["penguin", "bear"] """
-
-
-""" def get_player_name():
-    player_choice = voice_recognition.recognize_speech_from_mic(recognizer, microphone)
-    # player_choice_list = player_choice.split(" ")
-    for alternative in player_choice["transcription"]["alternative"]:
-        current = alternative["transcript"].split(" ")
-        for word in current:
-            if word.lower() in player_list:
-                return word
- """
-
-""" def set_difficulty(*args, **kwargs):
-    pass
- """
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -132,22 +101,24 @@ class Game:
                 self.p2_choice = [choose2, 0]
             
     def set_player(self, choose, pose, position:str):
-        players_size = self.screen_size[0]/10
+        players_size = self.screen_size[0]*0.20
         if position == "left":
-            player_position = (self.screen_size[0]/10, self.screen_size[1]*2/3)
+            direction = True
+            player_position = (self.screen_size[0]/10, self.screen_size[1]*0.5)
             bar_postition = (self.screen_size[0]/18, self.screen_size[1]/15)
         elif position == "right":
-            player_position = (self.screen_size[0]*9/10 - players_size, self.screen_size[1]*2/3)
-            bar_postition = (self.screen_size[0]*4/5 - players_size, self.screen_size[1]/10)
+            direction = False
+            player_position = (self.screen_size[0]*9/10 - players_size*942, self.screen_size[1]*0.5)
+            bar_postition = (self.screen_size[0]*17/18 - players_size*942, self.screen_size[1]/15)
         else:
             raise Exception("Error in setting characters")
         match choose:
             case "up":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
             case "left":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
             case "right":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
             case _:
                 raise Exception("Error in choose of characters")
         
@@ -215,5 +186,4 @@ if __name__ == "__main__":
     game = Game(screen, screen_size, bg, menu, None, p2)
     game.run()
     game.webcam.release()
-    cv2.destroyAllWindows()
     pygame.quit()

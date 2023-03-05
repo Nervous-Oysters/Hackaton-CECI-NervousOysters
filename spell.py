@@ -22,7 +22,6 @@ class Spell():
         
         
     def update(self):
-        print(self.position)
         if (self.direction):
             self.position = (self.position[0] + self.velocity, self.position[1])
             if self.position[0] >= self.to_player.position[0]: return "shooted"

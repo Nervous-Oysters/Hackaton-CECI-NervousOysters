@@ -24,12 +24,12 @@ class Player():
         self.current_animation = self.sprites_folder + animation # example : Hubert/t-pose_60
         self.sprites_list = os.listdir(self.current_animation) # Hubert/t-pose_60/*
         self.sprite_index = 0
+        self.direction = direction
         self.update_image(self.current_animation + "/" + self.sprites_list[self.sprite_index])
         self.animation_speed = int(self.current_animation.split('_')[-1]) # nb of frame before update
         self.frame_counter = 0
 
         self.position = position
-        self.direction = direction
         self.bar_position = bar_position
         self.health_bar = self.get_health_bar()
 
@@ -46,7 +46,7 @@ class Player():
         return self.pv <= 0
     
     def get_health_bar(self):
-        return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv), self.size/5)
+        return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv)*0.942, self.size*0.19)
 
     def update(self, pose):
         self.pose = pose
@@ -77,5 +77,6 @@ class Player():
     
     def update_image(self, path):
         self.image = pygame.image.load(path)
+        if not self.direction: self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
         
