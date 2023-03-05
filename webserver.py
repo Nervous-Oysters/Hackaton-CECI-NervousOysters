@@ -17,7 +17,9 @@ def player1():
 
 spell_corresp = {
     "fire": "fire-ball_10" ,
-    "ultimate": "send-oyster_10"
+    "ultimate": "send-oyster_10",
+    "water": "send-waterenergy_10",
+    "energy": "send-waterenergy_10",
 }
 
 @app.route("/cast", methods=['POST'])
