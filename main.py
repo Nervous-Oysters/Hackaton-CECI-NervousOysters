@@ -48,8 +48,11 @@ class Game:
             pygame.transform.scale(pygame.image.load("animations/counter/go.gif"), np.array((1,1))*self.screen_size[0]*0.2),
         ]
         self.music_queue_launched = True
-        
         self.time_select = 60
+        
+        self.whos_dead = None
+        self.outro_max_time = 300
+        self.outro_current_time = 0
 
     def process_web_spell(self):
         # if len(pre_process_spells) == 0:
@@ -97,6 +100,10 @@ class Game:
                     #is dead so need penguin to fall and after 3 seconds lance victory screen
                     #self.clock.tick(180)
                     print("you're dead")
+                    if spell.to_player.direction:
+                        self.whos_dead = "p1"
+                    else:
+                        self.whos_dead = "p2"
                     #cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
         for remove in to_remove:
             spells.remove(remove)
@@ -138,6 +145,19 @@ class Game:
         self.screen.blit(self.counter_symbol[symbol_pos], (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
         pygame.display.flip()
 
+    def display_win_screen(self):
+        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.player1.image, self.player1.position)
+        self.screen.blit(self.player2.image, self.player2.position)
+        color = (0, 204, 0)
+        pygame.draw.rect(screen, color, self.player1.health_bar)
+        pygame.draw.rect(screen, color, self.player2.health_bar)
+        if self.whos_dead == "p1":
+            self.screen.blit(self.p1_win, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
+        elif self.whos_dead == "p2":
+            self.screen.blit(self.p2_win, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
+        pygame.display.flip()
+
     def handle_menu(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -148,8 +168,8 @@ class Game:
         if self.player1 == None:
             choose1 = Mainpipe.choose_player(cam["left"])
         else:
-            #print(f"Player 1 choosed : {self.p1_choice[0]}")
             pass
+        print(choose1)
         if choose1:
             if self.p1_choice[0] == choose1:
                 self.p1_choice[1] += 1
@@ -164,6 +184,7 @@ class Game:
         else:
             #print(f"Player 2 choosed : {self.p2_choice[0]}")
             pass
+        print(choose2)
         if choose2:
             if self.p2_choice[0] == choose2:
                 self.p2_choice[1] += 1
@@ -280,6 +301,22 @@ class Game:
                     self.player2.change_animation("fighting_40")
                 self.clock.tick(60)
 
+            if self.whos_dead:
+                if self.whos_dead == "p1":
+                    self.player1.change_animation("dead_30")
+                elif self.whos_dead == "p2":
+                    self.player2.change_animation("dead_30")
+            while self.whos_dead:
+                self.handling_events()
+                self.display_win_screen()
+                self.clock.tick(60)
+                if self.outro_current_time >= self.outro_max_time:
+                    self.running = False
+                self.outro_current_time += 1
+            
+            if not self.running: break
+                    
+
             self.process_web_spell()
             self.handling_events()
             self.update()
@@ -301,7 +338,8 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(screen_size)
     # p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
     # p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
-    game = Game(screen, screen_size, bg, menu, None, None)
-    game.run()
-    game.webcam.release()
-    pygame.quit()
+    while True:
+        game = Game(screen, screen_size, bg, menu, None, None)
+        game.run()
+        game.webcam.release()
+        pygame.quit()
