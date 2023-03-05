@@ -147,6 +147,8 @@ class Game:
         pygame.draw.rect(screen, color, self.player2.health_bar)
         for spell in spells:
             self.screen.blit(spell.image, spell.position)
+        for animation in animations:
+            self.screen.blit(animation.image, animation.position)
         if self.turn:
             self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
             self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
