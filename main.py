@@ -72,11 +72,11 @@ class Game:
             if str_spell[2] == 1:
                 if self.player1.is_my_turn:
                     pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20))
+                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20, name=str_spell[3]))
             else:
                 if self.player2.is_my_turn:
                     pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20))
+                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20, name=str_spell[3]))
         os.remove("spells.csv")
 
     def handling_events(self):
@@ -100,15 +100,14 @@ class Game:
         for spell in spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
-                if spell.apply_damage():
-                    #is dead so need penguin to fall and after 3 seconds lance victory screen
-                    #self.clock.tick(180)
-                    print("you're dead")
-                    if spell.to_player.direction:
-                        self.whos_dead = "p1"
-                    else:
-                        self.whos_dead = "p2"
-                    #cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
+                if ((spell.name == "wind" or spell.name == "water") and not (spell.to_player.current_defense == 1)) or ((spell.name == "fire" or spell.name == "energy") and not (spell.to_player.current_defense == 2)) or (spell.name == "ultimate" and not (spell.to_player.current_defense == 3)):
+                    if spell.apply_damage():
+                        #is dead so need penguin to fall and after 3 seconds lance victory screen
+                        print("you're dead")
+                        if spell.to_player.direction:
+                            self.whos_dead = "p1"
+                        else:
+                            self.whos_dead = "p2"
         for remove in to_remove:
             spells.remove(remove)
         if self.player1 is None or self.player2 is None:
@@ -333,7 +332,7 @@ class Game:
             self.clock.tick(60)
 
 
-screen_size = (1080, 720)
+screen_size = (1920, 1080)
 
 if __name__ == "__main__":
     bg = pygame.image.load("images/background1.png")
