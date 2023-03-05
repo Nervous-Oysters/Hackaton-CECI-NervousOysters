@@ -23,7 +23,7 @@ class Animation:
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
         
     def next(self):
-        self.update_image(self.sprites_list[self.sprite_index])
+        self.update_image(self.animation_folder + "/" + self.sprites_list[self.sprite_index])
         self.sprite_index += 1
         if self.sprite_index >= len(self.sprites_list):
             return "end"
