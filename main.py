@@ -279,9 +279,12 @@ class Game:
         except:
             pass
         while self.running:
-            while counter<180:
-                self.screen.blit("images/Logo.png", (0, 0))
+            while counter<300:
+                bootimage = pygame.image.load("images/Logo.png")
+                bootimage = pygame.transform.scale(bootimage, (800,800))
+                self.screen.blit(bootimage, (0,0))
                 pygame.display.flip()
+                self.clock.tick(60)
                 counter +=1
 
             while self.player1 == None or self.player2 == None:
