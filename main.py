@@ -1,3 +1,4 @@
+import os
 import threading
 
 import pygame
@@ -9,6 +10,7 @@ from player import Player
 from spell import Spell
 import numpy as np
 
+spells = []
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -23,13 +25,14 @@ class Game:
         self.p1_choice = ["", 0]
         self.player2 = player2
         self.p2_choice = ["", 0]
-        self.spells = []  # contains all objects Spell
+
         self.on_menu = True
         self.screen_size = screen_size
 
         self.model = hub.load('movenet_multipose_lightning_1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
+        self.ret, self.frame = self.webcam.read()
         self.pose = None
 
         self.turn = False
@@ -48,6 +51,27 @@ class Game:
         
         self.time_select = 60
 
+    def process_web_spell(self):
+        # if len(pre_process_spells) == 0:
+        #    return
+        if not os.path.exists("spells.csv"):
+            return
+        with open("spells.csv", "r") as file:
+            pre_process_spells = file.readlines()
+        for str_spell in pre_process_spells:
+            str_spell = str_spell.split(",")
+            str_spell[1] = int(str_spell[1])
+            str_spell[2] = int(str_spell[2])
+            if str_spell[2] == 1:
+                if self.player1.is_my_turn:
+                    pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
+                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20))
+            else:
+                if self.player2.is_my_turn:
+                    pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
+                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20))
+        os.remove("spells.csv")
+
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -55,25 +79,27 @@ class Game:
                     self.running = False
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                        spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                         self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
-                        self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
+                        spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                        self.player2.music_queue.append({"path": "sounds/ultimate.wav", "loop": 0})
 
     def update(self):
         cam = self.handle_cam()
         self.player1.update(cam["left"])
         self.player2.update(cam["right"])
         to_remove = []
-        for spell in self.spells:
+        for spell in spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
                 if spell.apply_damage():
-                    # is dead
-                    pass
+                    #is dead so need penguin to fall and after 3 seconds lance victory screen
+                    #self.clock.tick(180)
+                    print("you're dead")
+                    #cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
         for remove in to_remove:
-            self.spells.remove(remove)
+            spells.remove(remove)
         if self.player1 is None or self.player2 is None:
             return
         if not self.player1.is_my_turn and not self.player2.is_my_turn:
@@ -91,7 +117,7 @@ class Game:
         color = (0, 204, 0)
         pygame.draw.rect(screen, color, self.player1.health_bar)
         pygame.draw.rect(screen, color, self.player2.health_bar)
-        for spell in self.spells:
+        for spell in spells:
             self.screen.blit(spell.image, spell.position)
         if self.turn:
             self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
@@ -196,7 +222,7 @@ class Game:
 
     def handle_music_intro(self):
         for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
-            pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]).set_volume(0.8), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
@@ -253,6 +279,8 @@ class Game:
                     self.player1.change_animation("fighting_40")
                     self.player2.change_animation("fighting_40")
                 self.clock.tick(60)
+
+            self.process_web_spell()
             self.handling_events()
             self.update()
             self.display()
