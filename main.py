@@ -1,3 +1,5 @@
+import threading
+
 import pygame
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -9,8 +11,6 @@ from spell import Spell
 import numpy as np
 import speech_recognition as sr
 import pyaudio
-import threading
-
 """ pa = pyaudio.PyAudio()
 chosen_device_index = -1
 for x in range(0,pa.get_device_count()):
@@ -42,24 +42,26 @@ player_list = ["penguin", "bear"] """
  """
 
 class Game:
-    def __init__(self, screen, background, menu, player1=None, player2=None) -> None:
+    def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
         self.screen = screen
         self.background = background
         self.menu = menu
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
-        self.p1_choice = [0]*3
+        self.p1_choice = ["", 0]
         self.player2 = player2
-        self.p2_choice = [0]*3
+        self.p2_choice = ["", 0]
         self.spells = [] # contains all objects Spell
         self.on_menu = True
-
+        self.screen_size = screen_size
+        
         self.model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
-
-
+        self.pose = None
+        
+        
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -69,22 +71,23 @@ class Game:
                     if event.key == pygame.K_LEFT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                     if event.key == pygame.K_RIGHT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player1.size))
-
+                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                    
     def update(self):
-        self.player1.update()
-        self.player2.update()
+        cam = self.handle_cam()
+        self.player1.update(cam["left"])
+        self.player2.update(cam["right"])
         to_remove = []
         for spell in self.spells:
-            if spell.update() == "shooted":
+            if spell.update() == "shooted": 
                 to_remove.append(spell)
                 if spell.apply_damage():
                     # is dead
                     pass
         for remove in to_remove:
             self.spells.remove(remove)
-
-
+                
+    
     def display(self):
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.player1.image, self.player1.position)
@@ -95,12 +98,66 @@ class Game:
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
-
+        
     def handle_menu(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.on_menu = False
                 self.running = False
+        cam = self.handle_cam()
+        choose1 = 0
+        if self.player1 == None:
+            choose1 = Mainpipe.choose_player(cam["left"])
+        else:
+            print(f"Player 1 choosed : {self.p1_choice[0]}")
+        if choose1:
+            if self.p1_choice[0] == choose1:
+                self.p1_choice[1] += 1
+                if self.p1_choice[1] >= 120: # 2 secondes
+                    self.set_p1(choose1, cam["left"])
+            else:
+                self.p1_choice = [choose1, 0]
+        
+        choose2 = 0
+        if self.player2 == None:
+            choose2 = Mainpipe.choose_player(cam["right"])
+        else:
+            print(f"Player 2 choosed : {self.p2_choice[0]}")
+        if choose2:
+            if self.p2_choice[0] == choose2:
+                self.p2_choice[1] += 1
+                if self.p2_choice[1] >= 120: # 2 secondes
+                    self.set_p2(choose2, cam["right"])
+            else:
+                self.p2_choice = [choose2, 0]
+            
+    def set_player(self, choose, pose, position:str):
+        players_size = self.screen_size[0]/10
+        if position == "left":
+            player_position = (self.screen_size[0]/10, self.screen_size[1]*2/3)
+            bar_postition = (self.screen_size[0]/5, self.screen_size[1]/10)
+        elif position == "right":
+            player_position = (self.screen_size[0]*9/10 - players_size, self.screen_size[1]*2/3)
+            bar_postition = (self.screen_size[0]*4/5 - players_size, self.screen_size[1]/10)
+        else:
+            raise Exception("Error in setting characters")
+        match choose:
+            case "up":
+                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+            case "left":
+                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+            case "right":
+                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+            case _:
+                raise Exception("Error in choose of characters")
+        
+    def set_p1(self, choose, pose):
+        self.player1 = self.set_player(choose, pose, "left")
+    
+    def set_p2(self, choose, pose):
+        self.player2 = self.set_player(choose, pose, "right")
+    
+                
     def handle_cam(self):
         ret, frame = self.webcam.read()
         image = frame.copy()
@@ -108,10 +165,18 @@ class Game:
         # Resize and pad the image to keep the aspect ratio and fit the expected size.
         image = tf.cast(tf.image.resize_with_pad(image, 192, 192), dtype=tf.int32)
         results = self.movenet(image)
-        return results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
+        keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
+        players_pose = {}
+        if keypoints_with_scores[0][0][1] < keypoints_with_scores[1][0][1]:
+            players_pose["left"] = keypoints_with_scores[0]
+            players_pose["right"] = keypoints_with_scores[1]
+        else:
+            players_pose["left"] = keypoints_with_scores[1]
+            players_pose["right"] = keypoints_with_scores[0]
+        return players_pose
 
     def handle_music(self):
-        for music in [{"path":"sounds/spawn.wav", "loop": 0}, {"path":"sounds/background_music.wav", "loop": -1}]:
+        for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
             pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
@@ -124,7 +189,7 @@ class Game:
         except:
             pass
         while self.running:
-            while self.player1 == None:
+            while self.player1 == None or self.player2 == None:
                 self.handle_menu()
                 self.screen.blit(self.menu, (0,0))
                 pygame.display.flip()
@@ -133,26 +198,21 @@ class Game:
             self.update()
             self.display()
             self.clock.tick(60)
-
+            
 
 screen_size = (1080, 720)
-
+            
 if __name__ == "__main__":
-    players_size = screen_size[0]/10
-    p1_pos = (screen_size[0]/10, screen_size[1]*2/3)
-    p1_bar_pos = (screen_size[0]/5, screen_size[1]/10)
-    p1 = Player("players/example.json", "sprites/", p1_pos, p1_bar_pos, True, players_size)
-    p2_pos = (screen_size[0] - p1_pos[0] - players_size, p1_pos[1])
-    p2_bar_pos = (screen_size[0] - p1_bar_pos[0] - players_size, p1_bar_pos[1])
-    p2 = Player("players/example.json", "sprites/", p2_pos, p2_bar_pos, True, players_size)
     bg = pygame.image.load("background.jpg")
-    bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut
+    bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
     menu = pygame.image.load("menu.jpg")
     menu = pygame.transform.scale(menu, screen_size)
-
+    
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
-    game = Game(screen, bg, menu, p1, p2)
+    p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
+    p2 = Player("players/example.json", "sprites/", (900, 500), (0, 0), False, None, 100)
+    game = Game(screen, screen_size, bg, menu, None, None)
     game.run()
     game.webcam.release()
     cv2.destroyAllWindows()

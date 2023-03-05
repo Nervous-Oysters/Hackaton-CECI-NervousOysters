@@ -2,7 +2,7 @@ import pygame
 import json
 import os
 import numpy as np
-
+import Mainpipe
 
 def load_json(filename):
     with open(filename) as file:
@@ -11,7 +11,7 @@ def load_json(filename):
 
 class Player():
 
-    def __init__(self, filename, sprites_folder, position, bar_position, direction, size=100, animation="t-pose_60"):
+    def __init__(self, filename, sprites_folder, position, bar_position, direction:bool, pose, size=100, animation="t-pose_60"):
         player_characteristics = load_json(filename)
         self.name = player_characteristics.get("name")
         self.pv = player_characteristics.get("pv")
@@ -33,6 +33,9 @@ class Player():
         self.bar_position = bar_position
         self.health_bar = self.get_health_bar()
 
+        self.pose = pose
+        self.choice = ["", 0]
+
         self.animations = player_characteristics.get("animations")
 
     def damage(self, amount):
@@ -45,7 +48,18 @@ class Player():
     def get_health_bar(self):
         return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv), self.size/5)
 
-    def update(self):
+    def update(self, pose):
+        self.pose = pose
+        if Mainpipe.defense_move1(self.pose):
+            if self.choice[0] =="move1": self.choice[1] += 1
+            else: self.choice = ["move1", 1]
+        if Mainpipe.defense_move2(self.pose):
+            if self.choice[0] =="move2": self.choice[1] += 1
+            else: self.choice = ["move2", 1]
+        if Mainpipe.defense_move3(self.pose):
+            if self.choice[0] =="move3": self.choice[1] += 1
+            else: self.choice = ["move3", 1]
+            
         self.health_bar = self.get_health_bar()
         self.frame_counter += 1
         if self.frame_counter >= self.animation_speed:
