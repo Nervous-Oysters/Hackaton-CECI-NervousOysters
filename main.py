@@ -5,41 +5,10 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import cv2
 import Mainpipe
-import voice_recognition
 from player import Player
 from spell import Spell
 import numpy as np
-import speech_recognition as sr
-import pyaudio
-""" pa = pyaudio.PyAudio()
-chosen_device_index = -1
-for x in range(0,pa.get_device_count()):
-    info = pa.get_device_info_by_index(x)
-    print(pa.get_device_info_by_index(x))
-    if info["name"] == "pulse":
-        chosen_device_index = info["index"]
-        print("Chosen index: ", chosen_device_index)
 
-
-recognizer = sr.Recognizer()
-microphone = sr.Microphone()
-
-player_list = ["penguin", "bear"] """
-
-
-""" def get_player_name():
-    player_choice = voice_recognition.recognize_speech_from_mic(recognizer, microphone)
-    # player_choice_list = player_choice.split(" ")
-    for alternative in player_choice["transcription"]["alternative"]:
-        current = alternative["transcript"].split(" ")
-        for word in current:
-            if word.lower() in player_list:
-                return word
- """
-
-""" def set_difficulty(*args, **kwargs):
-    pass
- """
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -70,8 +39,10 @@ class Game:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                        self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                        self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
                     
     def update(self):
         cam = self.handle_cam()
@@ -132,22 +103,24 @@ class Game:
                 self.p2_choice = [choose2, 0]
             
     def set_player(self, choose, pose, position:str):
-        players_size = self.screen_size[0]/10
+        players_size = self.screen_size[0]*0.20
         if position == "left":
-            player_position = (self.screen_size[0]/10, self.screen_size[1]*2/3)
-            bar_postition = (self.screen_size[0]/5, self.screen_size[1]/10)
+            direction = True
+            player_position = (self.screen_size[0]/10, self.screen_size[1]*0.5)
+            bar_postition = (self.screen_size[0]/18, self.screen_size[1]/15)
         elif position == "right":
-            player_position = (self.screen_size[0]*9/10 - players_size, self.screen_size[1]*2/3)
-            bar_postition = (self.screen_size[0]*4/5 - players_size, self.screen_size[1]/10)
+            direction = False
+            player_position = (self.screen_size[0]*9/10 - players_size*942, self.screen_size[1]*0.5)
+            bar_postition = (self.screen_size[0]*17/18 - players_size*942, self.screen_size[1]/15)
         else:
             raise Exception("Error in setting characters")
         match choose:
             case "up":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
-            case "left":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+                return Player("players/daniel.json", "sprites/daniel/", player_position, bar_postition, direction, pose, players_size)
             case "right":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, True, pose, players_size)
+                return Player("players/louise.json", "sprites/louise/", player_position, bar_postition, direction, pose, players_size)
+            case "left":
+                return Player("players/jacques.json", "sprites/jacques/", player_position, bar_postition, direction, pose, players_size)
             case _:
                 raise Exception("Error in choose of characters")
         
@@ -175,17 +148,40 @@ class Game:
             players_pose["right"] = keypoints_with_scores[0]
         return players_pose
 
-    def handle_music(self):
+    def handle_music_intro(self):
         for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
             pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
+                
+    def handle_music_p1(self):
+        while True:
+            if len(self.player1.music_queue) <= 0: continue
+            music = self.player1.music_queue.pop(0)
+            pygame.mixer.Channel(1).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+    
+    def handle_music_p2(self):
+        while True:
+            if len(self.player2.music_queue) <= 0: continue
+            music = self.player2.music_queue.pop(0)
+            pygame.mixer.Channel(2).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+                
 
     def run(self):
-        music_thread = threading.Thread(target=self.handle_music)
+        music_thread_intro = threading.Thread(target=self.handle_music_intro)
+        music_thread_p1 = threading.Thread(target=self.handle_music_p1)
+        music_thread_p2 = threading.Thread(target=self.handle_music_p2)
         try:
-            music_thread.start()
+            music_thread_intro.start()
+            music_thread_p1.start()
+            music_thread_p2.start()
         except:
             pass
         while self.running:
@@ -203,17 +199,16 @@ class Game:
 screen_size = (1080, 720)
             
 if __name__ == "__main__":
-    bg = pygame.image.load("background.jpg")
+    bg = pygame.image.load("background1.png")
     bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
     menu = pygame.image.load("menu.jpg")
     menu = pygame.transform.scale(menu, screen_size)
     
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
-    p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
-    p2 = Player("players/example.json", "sprites/", (900, 500), (0, 0), False, None, 100)
-    game = Game(screen, screen_size, bg, menu, None, None)
+    #p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
+    p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
+    game = Game(screen, screen_size, bg, menu, None, p2)
     game.run()
     game.webcam.release()
-    cv2.destroyAllWindows()
     pygame.quit()
