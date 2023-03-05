@@ -25,10 +25,12 @@ class Game:
         self.on_menu = True
         self.screen_size = screen_size
         
-        self.model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
+        self.model = hub.load('movenet_multipose_lightning_1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
         self.pose = None
+        
+        self.music_queue_launched = False
         
         self.intro_time = 180
         
@@ -80,6 +82,7 @@ class Game:
         choose1 = 0
         if self.player1 == None:
             choose1 = Mainpipe.choose_player(cam["left"])
+            print(choose1)
         else:
             print(f"Player 1 choosed : {self.p1_choice[0]}")
         if choose1:
@@ -93,6 +96,7 @@ class Game:
         choose2 = 0
         if self.player2 == None:
             choose2 = Mainpipe.choose_player(cam["right"])
+            print(choose2)
         else:
             print(f"Player 2 choosed : {self.p2_choice[0]}")
         if choose2:
@@ -177,12 +181,8 @@ class Game:
 
     def run(self):
         music_thread_intro = threading.Thread(target=self.handle_music_intro)
-        music_thread_p1 = threading.Thread(target=self.handle_music_p1)
-        music_thread_p2 = threading.Thread(target=self.handle_music_p2)
         try:
             music_thread_intro.start()
-            music_thread_p1.start()
-            music_thread_p2.start()
         except:
             pass
         while self.running:
@@ -191,14 +191,26 @@ class Game:
                 self.screen.blit(self.menu, (0,0))
                 pygame.display.flip()
                 self.clock.tick(60)
+            if not self.music_queue_launched:
+                music_thread_p1 = threading.Thread(target=self.handle_music_p1)
+                music_thread_p2 = threading.Thread(target=self.handle_music_p2)
+                try:
+                    music_thread_p1.start()
+                    music_thread_p2.start()
+                except:
+                    pass
+                self.music_queue_launched = True
+                
             while self.intro_time >= 0:
-                self.player1.update(None)
-                self.player2.update(None)
-                if self.intro.time == 0:
+                self.player1.update(0)
+                self.player2.update(0)
+                if self.intro_time == 0:
                     self.player1.change_animation("fighting_40")
                     self.player2.change_animation("fighting_40")
+                self.intro_time -= 1
                 self.display()
-                self.clock.tick(60)
+                #self.clock.tick(60)
+                print(self.intro_time)
             self.handling_events()
             self.update()
             self.display()
