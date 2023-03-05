@@ -35,9 +35,8 @@ class Game:
         self.wand_off = pygame.image.load("images/wand_off.png")
 
         self.intro_time = 180
-        self.music_queue_launched = False
+        self.music_queue_launched = True
 
-        self.music_queue_launched = False
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -75,7 +74,7 @@ class Game:
         pygame.draw.rect(screen, color, self.player1.health_bar)
         pygame.draw.rect(screen, color, self.player2.health_bar)
         for spell in self.spells:
-            self.screen.blit(spell.image, spell.position[1])
+            self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
 
     def handle_turn(self):
@@ -197,7 +196,7 @@ class Game:
         while True:
             if len(self.player2.music_queue) <= 0: continue
             music = self.player2.music_queue.pop(0)
-            pygame.mixer.Channel(2).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            pygame.mixer.Channel(2).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
@@ -233,7 +232,6 @@ class Game:
                 self.intro_time -= 1
                 self.display()
                 self.clock.tick(60)
-                print(self.intro_time)
             self.handling_events()
             self.update()
             self.display()
