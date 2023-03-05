@@ -52,8 +52,8 @@ class Game:
         self.music_queue_launched = True
         self.time_select = 60
         
-        self.p1_won = pygame.transform.scale(pygame.image.load("images/p1won.png"), np.array((1,1))*self.screen_size[0]*0.2)
-        self.p2_won = pygame.transform.scale(pygame.image.load("images/p2won.png"), np.array((1,1))*self.screen_size[0]*0.2)
+        self.p2_won = pygame.transform.scale(pygame.image.load("images/p1won.png"), np.array((1,1))*self.screen_size[0]*0.2)
+        self.p1_won = pygame.transform.scale(pygame.image.load("images/p2won.png"), np.array((1,1))*self.screen_size[0]*0.2)
         
         self.whos_dead = None
         self.outro_max_time = 300
@@ -105,9 +105,9 @@ class Game:
                     if spell.name == "fire" or spell.name == "energy":
                         animations.append(Animation("fire-head_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
-                        animations.append(Animation("oyster-hit_2", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
+                        animations.append(Animation("oyster-hit_2", spell.to_player, spell.to_player.direction, size=400, speed=2, loop=1))
                     if spell.name == "water":
-                        animations.append(Animation("water_hit", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
+                        animations.append(Animation("water_hit", spell.to_player, spell.to_player.direction, size=400, speed=2, loop=1))
                     if spell.apply_damage():
                         #is dead so need penguin to fall and after 3 seconds lance victory screen
                         print("you're dead")
@@ -119,7 +119,7 @@ class Game:
                     if spell.name == "fire" or spell.name == "energy":
                         animations.append(Animation("fire-protect_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
-                        animations.append(Animation("oyster-protect_1", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
+                        animations.append(Animation("oyster-protect_1", spell.to_player, spell.to_player.direction, size=400, speed=2, loop=1))
                     if spell.name == "water":
                         animations.append(Animation("water_protect", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
         to_remove_animation = []
