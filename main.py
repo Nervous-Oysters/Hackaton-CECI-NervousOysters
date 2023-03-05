@@ -9,6 +9,8 @@ from spell import Spell
 import numpy as np
 import speech_recognition as sr
 import pyaudio
+import threading
+
 """ pa = pyaudio.PyAudio()
 chosen_device_index = -1
 for x in range(0,pa.get_device_count()):
@@ -52,12 +54,12 @@ class Game:
         self.p2_choice = [0]*3
         self.spells = [] # contains all objects Spell
         self.on_menu = True
-        
+
         self.model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
-        
-        
+
+
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -68,21 +70,21 @@ class Game:
                         self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                     if event.key == pygame.K_RIGHT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player1.size))
-                    
+
     def update(self):
         self.player1.update()
         self.player2.update()
         to_remove = []
         for spell in self.spells:
-            if spell.update() == "shooted": 
+            if spell.update() == "shooted":
                 to_remove.append(spell)
                 if spell.apply_damage():
                     # is dead
                     pass
         for remove in to_remove:
             self.spells.remove(remove)
-                
-    
+
+
     def display(self):
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.player1.image, self.player1.position)
@@ -93,15 +95,12 @@ class Game:
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
-        
+
     def handle_menu(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.on_menu = False
                 self.running = False
-        
-        
-                
     def handle_cam(self):
         ret, frame = self.webcam.read()
         image = frame.copy()
@@ -110,8 +109,20 @@ class Game:
         image = tf.cast(tf.image.resize_with_pad(image, 192, 192), dtype=tf.int32)
         results = self.movenet(image)
         return results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
-    
+
+    def handle_music(self):
+        for music in [{"path":"sounds/spawn.wav", "loop": 0}, {"path":"sounds/background_music.wav", "loop": -1}]:
+            pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+
     def run(self):
+        music_thread = threading.Thread(target=self.handle_music)
+        try:
+            music_thread.start()
+        except:
+            pass
         while self.running:
             while self.player1 == None:
                 self.handle_menu()
@@ -122,10 +133,10 @@ class Game:
             self.update()
             self.display()
             self.clock.tick(60)
-            
+
 
 screen_size = (1080, 720)
-            
+
 if __name__ == "__main__":
     players_size = screen_size[0]/10
     p1_pos = (screen_size[0]/10, screen_size[1]*2/3)
@@ -135,10 +146,10 @@ if __name__ == "__main__":
     p2_bar_pos = (screen_size[0] - p1_bar_pos[0] - players_size, p1_bar_pos[1])
     p2 = Player("players/example.json", "sprites/", p2_pos, p2_bar_pos, True, players_size)
     bg = pygame.image.load("background.jpg")
-    bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
+    bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut
     menu = pygame.image.load("menu.jpg")
     menu = pygame.transform.scale(menu, screen_size)
-    
+
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
     game = Game(screen, bg, menu, p1, p2)
