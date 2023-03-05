@@ -46,7 +46,6 @@ class Game:
         
         self.time_select = 60
 
-
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -107,11 +106,11 @@ class Game:
                 self.player2.start_turn()
                 self.turn = False
         if self.turn:
-            self.screen.blit(self.wand_on, (100, 100))
-            self.screen.blit(self.wand_off, (self.player2.bar_position[0] - 32, self.player2.bar_position[0]))
+            self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
         else:
-            self.screen.blit(self.wand_on, (300, 300))
-            self.screen.blit(self.wand_off, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))            
+            self.screen.blit(self.wand_on, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
         pygame.display.flip()
 
     def handle_menu(self):
