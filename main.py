@@ -272,12 +272,18 @@ class Game:
                     pass
 
     def run(self):
+        counter = 0
         music_thread_intro = threading.Thread(target=self.handle_music_intro)
         try:
             music_thread_intro.start()
         except:
             pass
         while self.running:
+            while counter<180:
+                self.screen.blit("images/Logo.png", (0, 0))
+                pygame.display.flip()
+                counter +=1
+
             while self.player1 == None or self.player2 == None:
                 self.handle_menu()
                 self.current_change_frame = (self.current_change_frame + 1) % self.change_rate
