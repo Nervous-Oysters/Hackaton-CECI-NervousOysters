@@ -135,7 +135,7 @@ class Game:
         players_size = self.screen_size[0]/10
         if position == "left":
             player_position = (self.screen_size[0]/10, self.screen_size[1]*2/3)
-            bar_postition = (self.screen_size[0]/5, self.screen_size[1]/10)
+            bar_postition = (self.screen_size[0]/18, self.screen_size[1]/15)
         elif position == "right":
             player_position = (self.screen_size[0]*9/10 - players_size, self.screen_size[1]*2/3)
             bar_postition = (self.screen_size[0]*4/5 - players_size, self.screen_size[1]/10)
@@ -203,7 +203,7 @@ class Game:
 screen_size = (1080, 720)
             
 if __name__ == "__main__":
-    bg = pygame.image.load("background.jpg")
+    bg = pygame.image.load("background1.png")
     bg = pygame.transform.scale(bg, screen_size) # transform, doesn't cut    
     menu = pygame.image.load("menu.jpg")
     menu = pygame.transform.scale(menu, screen_size)
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(screen_size)
     p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
     p2 = Player("players/example.json", "sprites/", (900, 500), (0, 0), False, None, 100)
-    game = Game(screen, screen_size, bg, menu, None, None)
+    game = Game(screen, screen_size, bg, menu, None, p2)
     game.run()
     game.webcam.release()
     cv2.destroyAllWindows()
