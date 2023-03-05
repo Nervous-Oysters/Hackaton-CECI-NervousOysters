@@ -11,6 +11,7 @@ from spell import Spell
 import numpy as np
 
 spells = []
+animations = []
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -49,6 +50,9 @@ class Game:
         ]
         self.music_queue_launched = True
         self.time_select = 60
+        
+        self.p1_won = pygame.transform.scale(pygame.image.load("images/p1won.png"), np.array((1,1))*self.screen_size[0]*0.2)
+        self.p2_won = pygame.transform.scale(pygame.image.load("images/p2won.png"), np.array((1,1))*self.screen_size[0]*0.2)
         
         self.whos_dead = None
         self.outro_max_time = 300
@@ -153,9 +157,9 @@ class Game:
         pygame.draw.rect(screen, color, self.player1.health_bar)
         pygame.draw.rect(screen, color, self.player2.health_bar)
         if self.whos_dead == "p1":
-            self.screen.blit(self.p1_win, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
+            self.screen.blit(self.p1_won, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
         elif self.whos_dead == "p2":
-            self.screen.blit(self.p2_win, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
+            self.screen.blit(self.p2_won, (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
         pygame.display.flip()
 
     def handle_menu(self):
@@ -306,14 +310,17 @@ class Game:
             if self.whos_dead:
                 if self.whos_dead == "p1":
                     self.player1.change_animation("dead_30")
+                    self.player1.update(0)
                 elif self.whos_dead == "p2":
                     self.player2.change_animation("dead_30")
+                    self.player2.update(0)
             while self.whos_dead:
                 self.handling_events()
                 self.display_win_screen()
                 self.clock.tick(60)
                 if self.outro_current_time >= self.outro_max_time:
                     self.running = False
+                    break
                 self.outro_current_time += 1
             
             if not self.running: break
@@ -340,8 +347,8 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(screen_size)
     # p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
     # p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
-    while True:
-        game = Game(screen, screen_size, bg, menu, None, None)
-        game.run()
-        game.webcam.release()
-        pygame.quit()
+    game = Game(screen, screen_size, bg, menu, None, None)
+    game.run()
+    
+    game.webcam.release()
+    pygame.quit()
