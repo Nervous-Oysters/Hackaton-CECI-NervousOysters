@@ -57,6 +57,9 @@ class Player():
     
     def get_health_bar(self):
         return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv)*0.942, self.size*0.19)
+    
+    def update_health_bar(self):
+        self.health_bar = self.get_health_bar()
 
     def update(self, pose):
         self.handle_turn()
