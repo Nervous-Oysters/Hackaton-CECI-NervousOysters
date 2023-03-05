@@ -36,6 +36,7 @@ class Player():
         self.health_bar = self.get_health_bar()
 
         self.pose = pose
+        self.current_defense = -1
         self.choice = ["", 0]
         
         self.music_queue = []
@@ -60,13 +61,17 @@ class Player():
     def update(self, pose):
         self.handle_turn()
         self.pose = pose
+        self.current_defense = -1
         if Mainpipe.defense_move1(self.pose):
+            self.current_defense = 1
             if self.choice[0] =="move1": self.choice[1] += 1
             else: self.choice = ["move1", 1]
         if Mainpipe.defense_move2(self.pose):
+            self.current_defense = 2
             if self.choice[0] =="move2": self.choice[1] += 1
             else: self.choice = ["move2", 1]
         if Mainpipe.defense_move3(self.pose):
+            self.current_defense = 3
             if self.choice[0] =="move3": self.choice[1] += 1
             else: self.choice = ["move3", 1]
             
