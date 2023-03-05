@@ -8,7 +8,7 @@ import Mainpipe
 from player import Player
 from spell import Spell
 import numpy as np
-import pyaudio
+
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -146,17 +146,40 @@ class Game:
             players_pose["right"] = keypoints_with_scores[0]
         return players_pose
 
-    def handle_music(self):
+    def handle_music_intro(self):
         for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
             pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
+                
+    def handle_music_p1(self):
+        while True:
+            if len(self.player1.music_queue) <= 0: continue
+            music = self.player1.music_queue.pop(0)
+            pygame.mixer.Channel(1).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+    
+    def handle_music_p2(self):
+        while True:
+            if len(self.player2.music_queue) <= 0: continue
+            music = self.player2.music_queue.pop(0)
+            pygame.mixer.Channel(2).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+                
 
     def run(self):
-        music_thread = threading.Thread(target=self.handle_music)
+        music_thread_intro = threading.Thread(target=self.handle_music_intro)
+        music_thread_p1 = threading.Thread(target=self.handle_music_p1)
+        music_thread_p2 = threading.Thread(target=self.handle_music_p2)
         try:
-            music_thread.start()
+            music_thread_intro.start()
+            music_thread_p1.start()
+            music_thread_p2.start()
         except:
             pass
         while self.running:
