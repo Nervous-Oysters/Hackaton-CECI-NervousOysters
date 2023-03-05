@@ -93,7 +93,7 @@ class Player():
     def handle_turn(self):
         if self.is_my_turn:
             self.turn_frame_counter += 1
-            if self.turn_frame_counter < self.turn_frame_goal:
+            if self.turn_frame_counter >= self.turn_frame_goal:
                 self.is_my_turn = False
 
 
