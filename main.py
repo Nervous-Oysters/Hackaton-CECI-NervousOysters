@@ -30,6 +30,8 @@ class Game:
         self.webcam = cv2.VideoCapture(0)
         self.pose = None
         
+        self.intro_time = 180
+        
         
     def handling_events(self):
         for event in pygame.event.get():
@@ -56,8 +58,7 @@ class Game:
                     # is dead
                     pass
         for remove in to_remove:
-            self.spells.remove(remove)
-                
+            self.spells.remove(remove)              
     
     def display(self):
         self.screen.blit(self.background, (0,0))
@@ -189,6 +190,14 @@ class Game:
                 self.handle_menu()
                 self.screen.blit(self.menu, (0,0))
                 pygame.display.flip()
+                self.clock.tick(60)
+            while self.intro_time >= 0:
+                self.player1.update(None)
+                self.player2.update(None)
+                if self.intro.time == 0:
+                    self.player1.change_animation("fighting_40")
+                    self.player2.change_animation("fighting_40")
+                self.display()
                 self.clock.tick(60)
             self.handling_events()
             self.update()

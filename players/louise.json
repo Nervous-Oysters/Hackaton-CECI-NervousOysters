@@ -8,6 +8,7 @@
     },
     "animations": {
       "standby": "standby_60",
-      "dead":"dead_30"
+      "dead":"dead_30",
+      "fighting":"fighting_40"
     }
   }
