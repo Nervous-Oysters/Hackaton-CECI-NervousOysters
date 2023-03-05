@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request
+import main
+import spell
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -16,8 +18,9 @@ def player1():
 @app.route("/cast", methods=['POST'])
 def cast():
     player_id = request.form.get("player")
-    spell = request.form.get("spellName")
-    return "received"
+    spell_name = request.form.get("spellName")
+    main.pre_process_spells.append(("fire-ball_10", 5,player_id))
+    return "success!"
 
 
 @app.route("/player2")

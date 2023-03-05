@@ -7,8 +7,9 @@ import cv2
 import Mainpipe
 from player import Player
 from spell import Spell
-import numpy as np
 
+spells = []
+pre_process_spells = []
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -21,7 +22,7 @@ class Game:
         self.p1_choice = ["", 0]
         self.player2 = player2
         self.p2_choice = ["", 0]
-        self.spells = []  # contains all objects Spell
+
         self.on_menu = True
         self.screen_size = screen_size
 
@@ -37,6 +38,15 @@ class Game:
         self.intro_time = 180
         self.music_queue_launched = True
 
+    def process_web_spell(self):
+        # if len(pre_process_spells) == 0:
+        #    return
+        for str_spell in pre_process_spells:
+            if str_spell[2] == 1:
+                spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size))
+            else:
+                spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size))
+
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -44,10 +54,10 @@ class Game:
                     self.running = False
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                        spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                         self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                        spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
                         self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
 
     def update(self):
@@ -55,14 +65,14 @@ class Game:
         self.player1.update(cam["left"])
         self.player2.update(cam["right"])
         to_remove = []
-        for spell in self.spells:
+        for spell in spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
                 if spell.apply_damage():
                     # is dead
                     pass
         for remove in to_remove:
-            self.spells.remove(remove)
+            spells.remove(remove)
 
     def display(self):
         self.screen.blit(self.background, (0, 0))
@@ -71,7 +81,7 @@ class Game:
         color = (0, 204, 0)
         pygame.draw.rect(screen, color, self.player1.health_bar)
         pygame.draw.rect(screen, color, self.player2.health_bar)
-        for spell in self.spells:
+        for spell in spells:
             self.screen.blit(spell.image, spell.position)
         pygame.display.flip()
 
@@ -231,6 +241,7 @@ class Game:
                 self.intro_time -= 1
                 self.display()
                 self.clock.tick(60)
+            self.process_web_spell()
             self.handling_events()
             self.handle_turn()
             self.update()
