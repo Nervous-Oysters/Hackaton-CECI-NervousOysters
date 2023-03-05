@@ -7,6 +7,7 @@ import cv2
 import Mainpipe
 from player import Player
 from spell import Spell
+import webserver as ws
 import numpy as np
 
 
@@ -32,7 +33,21 @@ class Game:
         
         
     def handling_events(self):
-        for event in pygame.event.get():
+        if ws.cast.has_been_cast:
+            match ws.spell:
+                case "fire":
+                    self.spells.append(Spell("fire-ball_10", 12, ws.player_id, ws.not_player))
+                    if ws.player_id == 1:
+                        self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
+                    else:
+                        self.player2.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
+                    pass
+                case "water":
+                    self.spells.append(Spell("fire-ball_10"), 7, ws.player_id, ws.not_player)#need to change animatio to wateranymation
+                    #self.pl
+
+
+        """for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
                     self.running = False
@@ -42,7 +57,7 @@ class Game:
                         self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
-                        self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
+                        self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})"""
                     
     def update(self):
         cam = self.handle_cam()
