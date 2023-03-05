@@ -35,6 +35,8 @@ class Player():
 
         self.pose = pose
         self.choice = ["", 0]
+        
+        self.music_queue = []
 
         self.animations = player_characteristics.get("animations")
 
