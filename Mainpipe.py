@@ -5,6 +5,7 @@ import tensorflow_hub as hub
 from matplotlib import pyplot as plt
 import numpy as np
 
+#model = Model('joanna@wifi-student5-579 vosk-model-small-fr-0.22')
 def recognise_one_person():
     mp_draw = mp.solutions.drawing_utils  # drawing utilities
     mp_holistic = mp.solutions.holistic  # our holistic module
