@@ -2,7 +2,7 @@ import pygame
 import json
 import os
 import numpy as np
-
+import Mainpipe
 
 def load_json(filename):
     with open(filename) as file:
@@ -34,6 +34,7 @@ class Player():
         self.health_bar = self.get_health_bar()
 
         self.pose = pose
+        self.choice = ["", 0]
 
         self.animations = player_characteristics.get("animations")
 
@@ -49,6 +50,16 @@ class Player():
 
     def update(self, pose):
         self.pose = pose
+        if Mainpipe.defense_move1(self.pose):
+            if self.choice[0] =="move1": self.choice[1] += 1
+            else: self.choice = ["move1", 1]
+        if Mainpipe.defense_move2(self.pose):
+            if self.choice[0] =="move2": self.choice[1] += 1
+            else: self.choice = ["move2", 1]
+        if Mainpipe.defense_move3(self.pose):
+            if self.choice[0] =="move3": self.choice[1] += 1
+            else: self.choice = ["move3", 1]
+            
         self.health_bar = self.get_health_bar()
         self.frame_counter += 1
         if self.frame_counter >= self.animation_speed:

@@ -47,9 +47,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
-        self.p1_choice = ["direction", 0]
+        self.p1_choice = ["", 0]
         self.player2 = player2
-        self.p2_choice = ["direction", 0]
+        self.p2_choice = ["", 0]
         self.spells = [] # contains all objects Spell
         self.on_menu = True
         self.screen_size = screen_size
@@ -69,7 +69,7 @@ class Game:
                     if event.key == pygame.K_LEFT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                     if event.key == pygame.K_RIGHT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player1.size))
+                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
                     
     def update(self):
         cam = self.handle_cam()
@@ -106,7 +106,8 @@ class Game:
         choose1 = 0
         if self.player1 == None:
             choose1 = Mainpipe.choose_player(cam["left"])
-            print(f"player 1 : {choose1}")
+        else:
+            print(f"Player 1 choosed : {self.p1_choice[0]}")
         if choose1:
             if self.p1_choice[0] == choose1:
                 self.p1_choice[1] += 1
@@ -118,7 +119,8 @@ class Game:
         choose2 = 0
         if self.player2 == None:
             choose2 = Mainpipe.choose_player(cam["right"])
-            print(f"player 2 : {choose2}")
+        else:
+            print(f"Player 2 choosed : {self.p2_choice[0]}")
         if choose2:
             if self.p2_choice[0] == choose2:
                 self.p2_choice[1] += 1
@@ -194,6 +196,8 @@ if __name__ == "__main__":
     
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
+    p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
+    p2 = Player("players/example.json", "sprites/", (900, 500), (0, 0), False, None, 100)
     game = Game(screen, screen_size, bg, menu, None, None)
     game.run()
     game.webcam.release()

@@ -9,9 +9,8 @@ class Spell():
         self.damage = damage
         self.from_player = from_player
         self.to_player = to_player
-        #self.direction = self.from_player.position[0] < self.to_player.position[0] # true : left -> right
-        self.direction = self.from_player.direction
-                
+        self.direction = self.from_player.direction # True : left
+
         self.animation_folder = "animations/" + animation_folder # animations/fire-ball_20
         self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_20/*
         self.sprite_index = 0
@@ -21,12 +20,14 @@ class Spell():
         self.velocity = velocity # pixel per frame
         self.position = self.from_player.position
         
+        
     def update(self):
+        print(self.position)
         if (self.direction):
-            self.position = (self.position[0]+self.velocity, self.position[1])
+            self.position = (self.position[0] + self.velocity, self.position[1])
             if self.position[0] >= self.to_player.position[0]: return "shooted"
         else:
-            self.position = (self.position[0]-self.velocity, self.position[1])
+            self.position = (self.position[0] - self.velocity, self.position[1])
             if self.position[0] <= self.to_player.position[0]: return "shooted"
             
         self.frame_counter += 1
