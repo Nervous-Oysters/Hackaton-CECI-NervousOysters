@@ -5,11 +5,13 @@ from player import Player
 
 class Animation:
     
-    def __init__(self, animation_folder:str, player:Player, size=100, speed=10, loop=1):
+    def __init__(self, animation_folder:str, player:Player, direction:bool, size=150, speed=10, loop=1):
         self.size = size
         self.player = player
         self.position = player.position
-        
+        if not direction:
+            self.position = [self.position[0]+50, self.position[1]]
+        self.direction = direction
         self.animation_folder = "animations/" + animation_folder # animations/fire-ball_10
         self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_10/*
         self.sprite_index = 0
@@ -21,6 +23,8 @@ class Animation:
     def update_image(self, path):
         self.image = pygame.image.load(path)
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
+        if not self.direction:
+            self.image = pygame.transform.flip(self.image, True, False)
         
     def next(self):
         self.update_image(self.animation_folder + "/" + self.sprites_list[self.sprite_index])

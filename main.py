@@ -103,9 +103,9 @@ class Game:
                 to_remove.append(spell)
                 if ((spell.name == "wind" or spell.name == "water") and not (spell.to_player.current_defense == 1)) or ((spell.name == "fire" or spell.name == "energy") and not (spell.to_player.current_defense == 2)) or (spell.name == "ultimate" and not (spell.to_player.current_defense == 3)):
                     if spell.name == "fire" or spell.name == "energy":
-                        animations.append(Animation("fire-head_10", spell.to_player, size=100, speed=10, loop=10))
+                        animations.append(Animation("fire-head_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
-                        animations.append(Animation("oyster-hit_2", spell.to_player, size=100, speed=2, loop=1))
+                        animations.append(Animation("oyster-hit_2", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
                     if spell.apply_damage():
                         #is dead so need penguin to fall and after 3 seconds lance victory screen
                         print("you're dead")
@@ -115,9 +115,9 @@ class Game:
                             self.whos_dead = "p2"
                 else: # protected
                     if spell.name == "fire" or spell.name == "energy":
-                        animations.append(Animation("fire-protect_10", spell.to_player, size=100, speed=10, loop=10))
+                        animations.append(Animation("fire-protect_10", spell.to_player, spell.to_player.direction, size=150, speed=10, loop=2))
                     if spell.name == "ultimate":
-                        animations.append(Animation("oyster-protect_1", spell.to_player, size=100, speed=2, loop=1))
+                        animations.append(Animation("oyster-protect_1", spell.to_player, spell.to_player.direction, size=150, speed=2, loop=1))
         to_remove_animation = []
         for animation in animations:
             if animation.update() == "end":
