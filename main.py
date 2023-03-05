@@ -56,7 +56,6 @@ class Game:
         self.player1.update(cam["left"])
         self.player2.update(cam["right"])
         to_remove = []
-        self.handle_turn()
         for spell in self.spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
@@ -92,7 +91,8 @@ class Game:
             self.screen.blit(self.wand_off, (self.player2.bar_position[0] - 32, self.player2.bar_position[0]))
         else:
             self.screen.blit(self.wand_on, (300, 300))
-            self.screen.blit(self.wand_off, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))
+            self.screen.blit(self.wand_off, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))            
+        pygame.display.flip()
 
     def handle_menu(self):
         for event in pygame.event.get():
@@ -233,6 +233,7 @@ class Game:
                 self.display()
                 self.clock.tick(60)
             self.handling_events()
+            self.handle_turn()
             self.update()
             self.display()
             self.clock.tick(60)
