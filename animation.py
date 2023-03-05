@@ -14,6 +14,7 @@ class Animation:
         self.direction = direction
         self.animation_folder = "animations/" + animation_folder # animations/fire-ball_10
         self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_10/*
+        self.sprites_list.sort()
         print(self.sprites_list)
         self.sprite_index = 0
         self.frame_counter = 0
