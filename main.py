@@ -9,6 +9,8 @@ from player import Player
 from spell import Spell
 import numpy as np
 
+spells = []
+pre_process_spells = []
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -21,7 +23,7 @@ class Game:
         self.p1_choice = ["", 0]
         self.player2 = player2
         self.p2_choice = ["", 0]
-        self.spells = []  # contains all objects Spell
+
         self.on_menu = True
         self.screen_size = screen_size
 
@@ -34,8 +36,26 @@ class Game:
         self.wand_on = pygame.image.load("images/wand_on.png")
         self.wand_off = pygame.image.load("images/wand_off.png")
 
-        self.intro_time = 180
-        self.music_queue_launched = False
+        self.intro_time_max = 180
+        self.intro_time_current = 0
+        self.counter_symbol = [
+            pygame.transform.scale(pygame.image.load("animations/counter/1.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/2.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/3.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/go.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+        ]
+        self.music_queue_launched = True
+        
+        self.time_select = 60
+
+    def process_web_spell(self):
+        # if len(pre_process_spells) == 0:
+        #    return
+        for str_spell in pre_process_spells:
+            if str_spell[2] == 1:
+                spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size))
+            else:
+                spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size))
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -44,19 +64,18 @@ class Game:
                     self.running = False
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                        spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
                         self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
-                        self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                        spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
                         self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
 
     def update(self):
-        self.handle_turn()
         cam = self.handle_cam()
         self.player1.update(cam["left"])
         self.player2.update(cam["right"])
         to_remove = []
-        for spell in self.spells:
+        for spell in spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
                 if spell.apply_damage():
@@ -64,19 +83,6 @@ class Game:
                     pass
         for remove in to_remove:
             self.spells.remove(remove)
-
-    def display(self):
-        self.screen.blit(self.background, (0, 0))
-        self.screen.blit(self.player1.image, self.player1.position)
-        self.screen.blit(self.player2.image, self.player2.position)
-        color = (0, 204, 0)
-        pygame.draw.rect(screen, color, self.player1.health_bar)
-        pygame.draw.rect(screen, color, self.player2.health_bar)
-        for spell in self.spells:
-            self.screen.blit(spell.image, spell.position[1])
-        pygame.display.flip()
-
-    def handle_turn(self):
         if self.player1 is None or self.player2 is None:
             return
         if not self.player1.is_my_turn and not self.player2.is_my_turn:
@@ -86,12 +92,34 @@ class Game:
             else:
                 self.player2.start_turn()
                 self.turn = False
+
+    def display(self):
+        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.player1.image, self.player1.position)
+        self.screen.blit(self.player2.image, self.player2.position)
+        color = (0, 204, 0)
+        pygame.draw.rect(screen, color, self.player1.health_bar)
+        pygame.draw.rect(screen, color, self.player2.health_bar)
+        for spell in spells:
+            self.screen.blit(spell.image, spell.position)
         if self.turn:
-            self.screen.blit(self.wand_on, self.player1.bar_position[1])
-            self.screen.blit(self.wand_off, self.player2.bar_position[0])
+            self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
         else:
-            self.screen.blit(self.wand_on, self.player1.bar_position[0])
-            self.screen.blit(self.wand_off, self.player2.bar_position[1])
+            self.screen.blit(self.wand_on, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
+        pygame.display.flip()
+        
+    def display_intro(self):
+        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.player1.image, self.player1.position)
+        self.screen.blit(self.player2.image, self.player2.position)
+        color = (0, 204, 0)
+        pygame.draw.rect(screen, color, self.player1.health_bar)
+        pygame.draw.rect(screen, color, self.player2.health_bar)
+        symbol_pos = 4*self.intro_time_current//self.intro_time_max
+        self.screen.blit(self.counter_symbol[symbol_pos], (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
+        pygame.display.flip()
 
     def handle_menu(self):
         for event in pygame.event.get():
@@ -104,11 +132,12 @@ class Game:
             choose1 = Mainpipe.choose_player(cam["left"])
             print(choose1)
         else:
-            print(f"Player 1 choosed : {self.p1_choice[0]}")
+            #print(f"Player 1 choosed : {self.p1_choice[0]}")
+            pass
         if choose1:
             if self.p1_choice[0] == choose1:
                 self.p1_choice[1] += 1
-                if self.p1_choice[1] >= 120:  # 2 secondes
+                if self.p1_choice[1] >= self.time_select:
                     self.set_p1(choose1, cam["left"])
             else:
                 self.p1_choice = [choose1, 0]
@@ -118,11 +147,12 @@ class Game:
             choose2 = Mainpipe.choose_player(cam["right"])
             print(choose2)
         else:
-            print(f"Player 2 choosed : {self.p2_choice[0]}")
+            #print(f"Player 2 choosed : {self.p2_choice[0]}")
+            pass
         if choose2:
             if self.p2_choice[0] == choose2:
                 self.p2_choice[1] += 1
-                if self.p2_choice[1] >= 120:  # 2 secondes
+                if self.p2_choice[1] >= self.time_select:
                     self.set_p2(choose2, cam["right"])
             else:
                 self.p2_choice = [choose2, 0]
@@ -135,8 +165,8 @@ class Game:
             bar_postition = (self.screen_size[0] / 18, self.screen_size[1] / 15)
         elif position == "right":
             direction = False
-            player_position = (self.screen_size[0] * 9 / 10 - players_size * 942, self.screen_size[1] * 0.5)
-            bar_postition = (self.screen_size[0] * 17 / 18 - players_size * 942, self.screen_size[1] / 15)
+            player_position = (self.screen_size[0] * 9 / 10 - players_size * 0.942, self.screen_size[1] * 0.5)
+            bar_postition = (self.screen_size[0] * 17 / 18 - players_size * 0.942, self.screen_size[1] / 15)
         else:
             raise Exception("Error in setting characters")
         match choose:
@@ -195,7 +225,7 @@ class Game:
         while True:
             if len(self.player2.music_queue) <= 0: continue
             music = self.player2.music_queue.pop(0)
-            pygame.mixer.Channel(2).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            pygame.mixer.Channel(2).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
@@ -208,6 +238,7 @@ class Game:
             pass
         while self.running:
             while self.player1 == None or self.player2 == None:
+                print(self.player1, self.player2)
                 self.handle_menu()
                 self.screen.blit(self.menu, (0, 0))
                 pygame.display.flip()
@@ -222,16 +253,16 @@ class Game:
                     pass
                 self.music_queue_launched = True
                 
-            while self.intro_time >= 0:
+            while self.intro_time_current < self.intro_time_max:
                 self.player1.update(0)
                 self.player2.update(0)
-                if self.intro_time == 0:
+                self.display_intro()
+                self.intro_time_current += 1
+                if self.intro_time_current == self.intro_time_max:
                     self.player1.change_animation("fighting_40")
                     self.player2.change_animation("fighting_40")
-                self.intro_time -= 1
-                self.display()
                 self.clock.tick(60)
-                print(self.intro_time)
+            self.process_web_spell()
             self.handling_events()
             self.update()
             self.display()
@@ -249,8 +280,8 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
     # p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
-    p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
-    game = Game(screen, screen_size, bg, menu, None, p2)
+    # p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
+    game = Game(screen, screen_size, bg, menu, None, None)
     game.run()
     game.webcam.release()
     pygame.quit()

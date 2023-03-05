@@ -86,7 +86,7 @@ def recognise_mult_people(): #https://github.com/nicknochnack/MultiPoseMovenetLi
         dic = {}
         if keypoints_with_scores[0][0][1] < keypoints_with_scores[1][0][1]:
             dic["left"] = keypoints_with_scores[0]
-            dic ["rigth"] = keypoints_with_scores[1]
+            dic["rigth"] = keypoints_with_scores[1]
         #keypoints_with_scores[Ø] would be first person 1-> would be second person etc
         #loop_through_people(frame, keypoints_with_scores, EDGES, 0.1)#not needed just draws
         #print(defense_move2(keypoints_with_scores[0]) or defense_move1(keypoints_with_scores[0]))

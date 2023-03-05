@@ -4,7 +4,7 @@ import pygame
 
 class Spell():
     
-    def __init__(self, animation_folder:str, sound:str, damage, from_player, to_player, size=100, velocity=10):
+    def __init__(self, animation_folder:str, damage, from_player, to_player, size=100, velocity=10):
         self.size = size
         self.damage = damage
         self.from_player = from_player
