@@ -9,6 +9,7 @@ import Mainpipe
 from player import Player
 from spell import Spell
 import numpy as np
+from animation import Animation
 
 spells = []
 animations = []
@@ -101,6 +102,10 @@ class Game:
             if spell.update() == "shooted":
                 to_remove.append(spell)
                 if ((spell.name == "wind" or spell.name == "water") and not (spell.to_player.current_defense == 1)) or ((spell.name == "fire" or spell.name == "energy") and not (spell.to_player.current_defense == 2)) or (spell.name == "ultimate" and not (spell.to_player.current_defense == 3)):
+                    if spell.name == "fire" or spell.name == "energy":
+                        animations.append(Animation("fire-head_10", spell.to_player, size=100, speed=10, loop=10))
+                    if spell.name == "ultimate":
+                        animations.append(Animation("oyster-hit_2", spell.to_player, size=100, speed=2, loop=1))
                     if spell.apply_damage():
                         #is dead so need penguin to fall and after 3 seconds lance victory screen
                         print("you're dead")
@@ -108,6 +113,19 @@ class Game:
                             self.whos_dead = "p1"
                         else:
                             self.whos_dead = "p2"
+                else: # protected
+                    if spell.name == "fire" or spell.name == "energy":
+                        animations.append(Animation("fire-protect_10", spell.to_player, size=100, speed=10, loop=10))
+                    if spell.name == "ultimate":
+                        animations.append(Animation("oyster-protect_1", spell.to_player, size=100, speed=2, loop=1))
+        to_remove_animation = []
+        for animation in animations:
+            if animation.update() == "end":
+                to_remove_animation.append(animation)
+        for remove in to_remove_animation:
+            animations.remove(remove)
+        
+                    
         for remove in to_remove:
             spells.remove(remove)
         if self.player1 is None or self.player2 is None:

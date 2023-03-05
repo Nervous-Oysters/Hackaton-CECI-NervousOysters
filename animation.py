@@ -5,7 +5,7 @@ from player import Player
 
 class Animation:
     
-    def __init__(self, animation_folder:str, player:Player, size=100, velocity=10):
+    def __init__(self, animation_folder:str, player:Player, size=100, speed=10, loop=1):
         self.size = size
         self.player = player
         self.position = player.position
@@ -15,9 +15,26 @@ class Animation:
         self.sprite_index = 0
         self.frame_counter = 0
         self.update_image(self.animation_folder + "/" + self.sprites_list[self.sprite_index])
-        self.animation_speed = int(self.animation_folder.split('_')[-1]) # nb of frame before update
-        self.velocity = velocity # pixel per frame
+        self.speed = speed # pixel per frame
+        self.loop = loop
         
     def update_image(self, path):
         self.image = pygame.image.load(path)
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
+        
+    def next(self):
+        self.update_image(self.sprites_list[self.sprite_index])
+        self.sprite_index += 1
+        if self.sprite_index >= len(self.sprites_list):
+            return "end"
+        
+    def update(self):
+        self.frame_counter += 1
+        if self.frame_counter >= self.speed:
+            if self.next() == "end": 
+                self.loop -= 1
+                if self.loop <= 0:
+                    return "end"
+                else:
+                    self.sprite_index = 0
+            self.frame_counter = 0
