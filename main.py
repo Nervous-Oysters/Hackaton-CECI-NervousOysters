@@ -31,6 +31,8 @@ class Game:
         self.webcam = cv2.VideoCapture(0)
         self.pose = None
         
+        self.intro_time = 180
+        
         
     def handling_events(self):
         if ws.cast.has_been_cast:
@@ -71,8 +73,7 @@ class Game:
                     # is dead
                     pass
         for remove in to_remove:
-            self.spells.remove(remove)
-                
+            self.spells.remove(remove)              
     
     def display(self):
         self.screen.blit(self.background, (0,0))
@@ -174,7 +175,7 @@ class Game:
         while True:
             if len(self.player1.music_queue) <= 0: continue
             music = self.player1.music_queue.pop(0)
-            pygame.mixer.Channel(1).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            pygame.mixer.Channel(1).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
@@ -204,6 +205,14 @@ class Game:
                 self.handle_menu()
                 self.screen.blit(self.menu, (0,0))
                 pygame.display.flip()
+                self.clock.tick(60)
+            while self.intro_time >= 0:
+                self.player1.update(None)
+                self.player2.update(None)
+                if self.intro.time == 0:
+                    self.player1.change_animation("fighting_40")
+                    self.player2.change_animation("fighting_40")
+                self.display()
                 self.clock.tick(60)
             self.handling_events()
             self.update()
