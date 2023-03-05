@@ -52,11 +52,11 @@ class Game:
                         self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
 
     def update(self):
-        self.handle_turn()
         cam = self.handle_cam()
         self.player1.update(cam["left"])
         self.player2.update(cam["right"])
         to_remove = []
+        self.handle_turn()
         for spell in self.spells:
             if spell.update() == "shooted":
                 to_remove.append(spell)
@@ -88,10 +88,10 @@ class Game:
                 self.player2.start_turn()
                 self.turn = False
         if self.turn:
-            self.screen.blit(self.wand_on, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))
-            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[0] + 32))
+            self.screen.blit(self.wand_on, (100, 100))
+            self.screen.blit(self.wand_off, (self.player2.bar_position[0] - 32, self.player2.bar_position[0]))
         else:
-            self.screen.blit(self.wand_on, (self.player2.bar_position[0] -32 , self.player2.bar_position[0]))
+            self.screen.blit(self.wand_on, (300, 300))
             self.screen.blit(self.wand_off, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))
 
     def handle_menu(self):
