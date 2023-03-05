@@ -17,6 +17,8 @@ class Game:
         self.screen = screen
         self.background = background
         self.menu = menu
+        self.change_rate = 20
+        self.current_change_frame = 0
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
@@ -30,7 +32,7 @@ class Game:
         self.model = hub.load('movenet_multipose_lightning_1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
-        self.ret, self.frame = self.webcam.read
+        self.ret, self.frame = self.webcam.read()
         self.pose = None
 
         self.turn = False
@@ -61,11 +63,13 @@ class Game:
             str_spell[1] = int(str_spell[1])
             str_spell[2] = int(str_spell[2])
             if str_spell[2] == 1:
-                pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size))
+                if self.player1.is_my_turn:
+                    pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
+                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20))
             else:
-                pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size))
+                if self.player2.is_my_turn:
+                    pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
+                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20))
         os.remove("spells.csv")
 
     def handling_events(self):
@@ -92,7 +96,8 @@ class Game:
                 if spell.apply_damage():
                     #is dead so need penguin to fall and after 3 seconds lance victory screen
                     #self.clock.tick(180)
-                    cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
+                    print("you're dead")
+                    #cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
         for remove in to_remove:
             spells.remove(remove)
         if self.player1 is None or self.player2 is None:
@@ -142,7 +147,6 @@ class Game:
         choose1 = 0
         if self.player1 == None:
             choose1 = Mainpipe.choose_player(cam["left"])
-            print(choose1)
         else:
             #print(f"Player 1 choosed : {self.p1_choice[0]}")
             pass
@@ -157,7 +161,6 @@ class Game:
         choose2 = 0
         if self.player2 == None:
             choose2 = Mainpipe.choose_player(cam["right"])
-            print(choose2)
         else:
             #print(f"Player 2 choosed : {self.p2_choice[0]}")
             pass
@@ -250,9 +253,11 @@ class Game:
             pass
         while self.running:
             while self.player1 == None or self.player2 == None:
-                print(self.player1, self.player2)
                 self.handle_menu()
-                self.screen.blit(self.menu, (0, 0))
+                self.current_change_frame = (self.current_change_frame + 1) % self.change_rate
+                pos = (2*self.current_change_frame)//self.change_rate
+                print(pos)
+                self.screen.blit(self.menu[pos], (0, 0))
                 pygame.display.flip()
                 self.clock.tick(60)
             if not self.music_queue_launched:
@@ -285,10 +290,12 @@ class Game:
 screen_size = (1080, 720)
 
 if __name__ == "__main__":
-    bg = pygame.image.load("background1.png")
+    bg = pygame.image.load("images/background1.png")
     bg = pygame.transform.scale(bg, screen_size)  # transform, doesn't cut
-    menu = pygame.image.load("menu.jpg")
-    menu = pygame.transform.scale(menu, screen_size)
+    menu = [
+        pygame.transform.scale(pygame.image.load("images/choose1.gif"), screen_size),
+        pygame.transform.scale(pygame.image.load("images/choose2.gif"), screen_size)        
+    ]
 
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
