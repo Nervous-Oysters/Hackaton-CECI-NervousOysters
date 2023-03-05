@@ -257,11 +257,11 @@ class Game:
         keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
         players_pose = {}
         if keypoints_with_scores[0][0][1] < keypoints_with_scores[1][0][1]:
-            players_pose["left"] = keypoints_with_scores[0]
-            players_pose["right"] = keypoints_with_scores[1]
-        else:
             players_pose["left"] = keypoints_with_scores[1]
             players_pose["right"] = keypoints_with_scores[0]
+        else:
+            players_pose["left"] = keypoints_with_scores[0]
+            players_pose["right"] = keypoints_with_scores[1]
         return players_pose
 
     def handle_music_intro(self):
