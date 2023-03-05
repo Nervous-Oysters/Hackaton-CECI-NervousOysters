@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Page with 6 Buttons</title>
+    <script>
+        function sendPostRequest(buttonId) {
+            fetch('/cast', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'spellName=' + buttonId + "&player=" + {{ player_no }}
+
+            })
+                .then(response => {
+                    console.log('POST request sent!');
+                })
+                .catch(error => {
+                    console.error('Error sending POST request:', error);
+                });
+        }
+    </script>
+    	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f2f2f2;
+			padding: 20px;
+		}
+		h1 {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+		button {
+			display: block;
+			margin: 10px auto;
+			padding: 10px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			color: #fff;
+			background-color: #007bff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+		button:hover {
+			background-color: #0069d9;
+		}
+	</style>
+</head>
+<body>
+<h1>Joueur {{ player_1 }} sorts</h1>
+<button onclick="sendPostRequest('fire')">Button 1</button>
+<button onclick="sendPostRequest('water')">Button 2</button>
+<button onclick="sendPostRequest('earth')">Button 3</button>
+<button onclick="sendPostRequest('wind')">Button 4</button>
+<button onclick="sendPostRequest('energy')">Button 5</button>
+<button onclick="sendPostRequest('ultimate')">Button 6</button>
+</body>
+</html>
