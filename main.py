@@ -121,7 +121,7 @@ class Game:
                     if spell.name == "ultimate":
                         animations.append(Animation("oyster-protect_1", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
                     if spell.name == "water":
-                        animations.append(Animation("water-protect", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
+                        animations.append(Animation("water_protect", spell.to_player, spell.to_player.direction, size=300, speed=2, loop=1))
         to_remove_animation = []
         for animation in animations:
             if animation.update() == "end":
