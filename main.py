@@ -30,6 +30,7 @@ class Game:
         self.model = hub.load('movenet_multipose_lightning_1')
         self.movenet = self.model.signatures['serving_default']
         self.webcam = cv2.VideoCapture(0)
+        self.ret, self.frame = self.webcam.read
         self.pose = None
 
         self.turn = False
@@ -79,8 +80,9 @@ class Game:
             if spell.update() == "shooted":
                 to_remove.append(spell)
                 if spell.apply_damage():
-                    # is dead
-                    pass
+                    #is dead so need penguin to fall and after 3 seconds lance victory screen
+                    #self.clock.tick(180)
+                    cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
         for remove in to_remove:
             self.spells.remove(remove)
         if self.player1 is None or self.player2 is None:
@@ -262,6 +264,7 @@ class Game:
                     self.player1.change_animation("fighting_40")
                     self.player2.change_animation("fighting_40")
                 self.clock.tick(60)
+
             self.process_web_spell()
             self.handling_events()
             self.update()
