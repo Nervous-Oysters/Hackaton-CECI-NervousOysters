@@ -159,7 +159,7 @@ class Game:
         while True:
             if len(self.player1.music_queue) <= 0: continue
             music = self.player1.music_queue.pop(0)
-            pygame.mixer.Channel(1).player(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            pygame.mixer.Channel(1).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
