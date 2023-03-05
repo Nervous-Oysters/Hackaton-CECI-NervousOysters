@@ -1,3 +1,5 @@
+import threading
+
 import pygame
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -172,8 +174,20 @@ class Game:
             players_pose["left"] = keypoints_with_scores[1]
             players_pose["right"] = keypoints_with_scores[0]
         return players_pose
-    
+
+    def handle_music(self):
+        for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
+            pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]), loops=music["loop"])
+            if music["loop"] != -1:
+                while pygame.mixer.get_busy():
+                    pass
+
     def run(self):
+        music_thread = threading.Thread(target=self.handle_music)
+        try:
+            music_thread.start()
+        except:
+            pass
         while self.running:
             while self.player1 == None or self.player2 == None:
                 self.handle_menu()
