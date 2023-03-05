@@ -243,7 +243,9 @@ class Game:
 
     def handle_music_intro(self):
         for music in [{"path": "sounds/spawn.wav", "loop": 0}, {"path": "sounds/background_music.wav", "loop": -1}]:
-            pygame.mixer.Channel(0).play(pygame.mixer.Sound(music["path"]).set_volume(0.8), loops=music["loop"])
+            intro_music =pygame.mixer.Sound(music["path"])
+            intro_music.set_volume(0.22)
+            pygame.mixer.Channel(0).play(intro_music, loops=music["loop"])
             if music["loop"] != -1:
                 while pygame.mixer.get_busy():
                     pass
