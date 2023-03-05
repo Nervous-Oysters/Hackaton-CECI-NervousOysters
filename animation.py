@@ -10,10 +10,11 @@ class Animation:
         self.player = player
         self.position = player.position
         if not direction:
-            self.position = [self.position[0]+50, self.position[1]]
+            self.position = [self.position[0]+20, self.position[1]]
         self.direction = direction
         self.animation_folder = "animations/" + animation_folder # animations/fire-ball_10
         self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_10/*
+        print(self.sprites_list)
         self.sprite_index = 0
         self.frame_counter = 0
         self.update_image(self.animation_folder + "/" + self.sprites_list[self.sprite_index])
