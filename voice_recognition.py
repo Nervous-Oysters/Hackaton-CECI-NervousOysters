@@ -6,7 +6,7 @@ import pyaudio
 #keyboard_controller = keyboard.Controller()
 #mouse_controller = mouse.Controller()
 
-model = Model('vosk-model-small-fr-0.22')
+model = Model('vosk-model-small-en-us-0.15')
 recognize = KaldiRecognizer(model, 16000)
 cap = pyaudio.PyAudio()
 stream = cap.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
