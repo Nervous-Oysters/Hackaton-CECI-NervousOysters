@@ -126,7 +126,7 @@ class Game:
         if choose1:
             if self.p1_choice[0] == choose1:
                 self.p1_choice[1] += 1
-                if self.p1_choice[1] >= self.time_select:  # 2 secondes
+                if self.p1_choice[1] >= self.time_select:
                     self.set_p1(choose1, cam["left"])
             else:
                 self.p1_choice = [choose1, 0]
@@ -141,7 +141,7 @@ class Game:
         if choose2:
             if self.p2_choice[0] == choose2:
                 self.p2_choice[1] += 1
-                if self.p2_choice[1] >= self.time_select:  # 2 secondes
+                if self.p2_choice[1] >= self.time_select:
                     self.set_p2(choose2, cam["right"])
             else:
                 self.p2_choice = [choose2, 0]
@@ -154,8 +154,8 @@ class Game:
             bar_postition = (self.screen_size[0] / 18, self.screen_size[1] / 15)
         elif position == "right":
             direction = False
-            player_position = (self.screen_size[0] * 9 / 10 - players_size * 942, self.screen_size[1] * 0.5)
-            bar_postition = (self.screen_size[0] * 17 / 18 - players_size * 942, self.screen_size[1] / 15)
+            player_position = (self.screen_size[0] * 9 / 10 - players_size * 0.942, self.screen_size[1] * 0.5)
+            bar_postition = (self.screen_size[0] * 17 / 18 - players_size * 0.942, self.screen_size[1] / 15)
         else:
             raise Exception("Error in setting characters")
         match choose:
@@ -227,6 +227,7 @@ class Game:
             pass
         while self.running:
             while self.player1 == None or self.player2 == None:
+                print(self.player1, self.player2)
                 self.handle_menu()
                 self.screen.blit(self.menu, (0, 0))
                 pygame.display.flip()
@@ -267,8 +268,8 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
     # p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
-    p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
-    game = Game(screen, screen_size, bg, menu, None, p2)
+    # p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
+    game = Game(screen, screen_size, bg, menu, None, None)
     game.run()
     game.webcam.release()
     pygame.quit()
