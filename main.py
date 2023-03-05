@@ -17,6 +17,8 @@ class Game:
         self.screen = screen
         self.background = background
         self.menu = menu
+        self.change_rate = 20
+        self.current_change_frame = 0
         self.clock = pygame.time.Clock()
         self.running = True
         self.player1 = player1
@@ -145,7 +147,6 @@ class Game:
         choose1 = 0
         if self.player1 == None:
             choose1 = Mainpipe.choose_player(cam["left"])
-            print(choose1)
         else:
             #print(f"Player 1 choosed : {self.p1_choice[0]}")
             pass
@@ -160,7 +161,6 @@ class Game:
         choose2 = 0
         if self.player2 == None:
             choose2 = Mainpipe.choose_player(cam["right"])
-            print(choose2)
         else:
             #print(f"Player 2 choosed : {self.p2_choice[0]}")
             pass
@@ -255,9 +255,11 @@ class Game:
             pass
         while self.running:
             while self.player1 == None or self.player2 == None:
-                print(self.player1, self.player2)
                 self.handle_menu()
-                self.screen.blit(self.menu, (0, 0))
+                self.current_change_frame = (self.current_change_frame + 1) % self.change_rate
+                pos = (2*self.current_change_frame)//self.change_rate
+                print(pos)
+                self.screen.blit(self.menu[pos], (0, 0))
                 pygame.display.flip()
                 self.clock.tick(60)
             if not self.music_queue_launched:
@@ -290,10 +292,12 @@ class Game:
 screen_size = (1080, 720)
 
 if __name__ == "__main__":
-    bg = pygame.image.load("background1.png")
+    bg = pygame.image.load("images/background1.png")
     bg = pygame.transform.scale(bg, screen_size)  # transform, doesn't cut
-    menu = pygame.image.load("menu.jpg")
-    menu = pygame.transform.scale(menu, screen_size)
+    menu = [
+        pygame.transform.scale(pygame.image.load("images/choose1.gif"), screen_size),
+        pygame.transform.scale(pygame.image.load("images/choose2.gif"), screen_size)        
+    ]
 
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
