@@ -72,11 +72,11 @@ class Game:
             if str_spell[2] == 1:
                 if self.player1.is_my_turn:
                     pygame.mixer.Channel(1).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=20, name=str_spell[3]))
+                    spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size, velocity=40, name=str_spell[3]))
             else:
                 if self.player2.is_my_turn:
                     pygame.mixer.Channel(2).play(pygame.mixer.Sound(f"sounds/{str_spell[3]}.wav"))
-                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=20, name=str_spell[3]))
+                    spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size, velocity=40, name=str_spell[3]))
         os.remove("spells.csv")
 
     def handling_events(self):
