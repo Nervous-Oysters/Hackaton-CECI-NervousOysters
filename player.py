@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import json
 import os
@@ -40,6 +42,11 @@ class Player():
 
         self.animations = player_characteristics.get("animations")
 
+        self.turn_time = 0
+        self.turn_frame_counter = 0
+        self.turn_frame_goal = 0
+        self.is_my_turn = False
+
     def damage(self, amount):
         self.pv -= amount
         return self.is_dead()
@@ -51,6 +58,7 @@ class Player():
         return pygame.Rect(self.bar_position[0], self.bar_position[1], self.size*(self.pv/self.max_pv)*0.942, self.size*0.19)
 
     def update(self, pose):
+        self.handle_turn()
         self.pose = pose
         if Mainpipe.defense_move1(self.pose):
             if self.choice[0] =="move1": self.choice[1] += 1
@@ -81,4 +89,16 @@ class Player():
         self.image = pygame.image.load(path)
         if not self.direction: self.image = pygame.transform.flip(self.image, True, False)
         self.image = pygame.transform.scale(self.image, np.array((1,1))*self.size)
-        
+
+    def handle_turn(self):
+        if self.is_my_turn:
+            self.turn_frame_counter += 1
+            if self.turn_frame_counter < self.turn_frame_goal:
+                self.is_my_turn = False
+
+
+    def start_turn(self):
+        self.turn_time = random.randint(2, 7)
+        self.is_my_turn = True
+        self.turn_frame_counter = 0
+        self.turn_frame_goal = self.turn_time * 60
