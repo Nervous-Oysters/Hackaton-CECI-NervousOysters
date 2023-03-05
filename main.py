@@ -34,6 +34,8 @@ class Game:
         self.wand_on = pygame.image.load("images/wand_on.png")
         self.wand_off = pygame.image.load("images/wand_off.png")
 
+        self.intro_time = 180
+
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -210,6 +212,14 @@ class Game:
                 self.handle_menu()
                 self.screen.blit(self.menu, (0, 0))
                 pygame.display.flip()
+                self.clock.tick(60)
+            while self.intro_time >= 0:
+                self.player1.update(None)
+                self.player2.update(None)
+                if self.intro.time == 0:
+                    self.player1.change_animation("fighting_40")
+                    self.player2.change_animation("fighting_40")
+                self.display()
                 self.clock.tick(60)
             self.handling_events()
             self.update()
