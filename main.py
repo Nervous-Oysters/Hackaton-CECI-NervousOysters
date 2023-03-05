@@ -72,6 +72,15 @@ class Game:
                     pass
         for remove in to_remove:
             self.spells.remove(remove)
+        if self.player1 is None or self.player2 is None:
+            return
+        if not self.player1.is_my_turn and not self.player2.is_my_turn:
+            if not self.turn:
+                self.player1.start_turn()
+                self.turn = True
+            else:
+                self.player2.start_turn()
+                self.turn = False
 
     def display(self):
         self.screen.blit(self.background, (0, 0))
@@ -82,6 +91,12 @@ class Game:
         pygame.draw.rect(screen, color, self.player2.health_bar)
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
+        if self.turn:
+            self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
+        else:
+            self.screen.blit(self.wand_on, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
+            self.screen.blit(self.wand_off, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
         pygame.display.flip()
         
     def display_intro(self):
@@ -93,24 +108,6 @@ class Game:
         pygame.draw.rect(screen, color, self.player2.health_bar)
         symbol_pos = 4*self.intro_time_current//self.intro_time_max
         self.screen.blit(self.counter_symbol[symbol_pos], (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
-        pygame.display.flip()
-
-    def handle_turn(self):
-        if self.player1 is None or self.player2 is None:
-            return
-        if not self.player1.is_my_turn and not self.player2.is_my_turn:
-            if not self.turn:
-                self.player1.start_turn()
-                self.turn = True
-            else:
-                self.player2.start_turn()
-                self.turn = False
-        if self.turn:
-            self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
-            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
-        else:
-            self.screen.blit(self.wand_on, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
-            self.screen.blit(self.wand_off, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
         pygame.display.flip()
 
     def handle_menu(self):
@@ -254,7 +251,6 @@ class Game:
                     self.player2.change_animation("fighting_40")
                 self.clock.tick(60)
             self.handling_events()
-            self.handle_turn()
             self.update()
             self.display()
             self.clock.tick(60)
