@@ -98,7 +98,7 @@ class Player():
 
 
     def start_turn(self):
-        self.turn_time = random.randint(2, 7)
+        self.turn_time = random.randint(1, 4)
         self.is_my_turn = True
         self.turn_frame_counter = 0
         self.turn_frame_goal = self.turn_time * 60
