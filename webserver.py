@@ -19,7 +19,9 @@ def player1():
 def cast():
     player_id = request.form.get("player")
     spell_name = request.form.get("spellName")
-    main.pre_process_spells.append(("fire-ball_10", 5,player_id))
+    # main.pre_process_spells.append(("fire-ball_10", 5,player_id))
+    with open("spells.csv","w") as file:
+        file.write(f"fire-ball_10,5,{player_id}")
     return "success!"
 
 

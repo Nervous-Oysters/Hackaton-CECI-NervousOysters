@@ -1,3 +1,4 @@
+import os
 import threading
 
 import pygame
@@ -10,7 +11,6 @@ from spell import Spell
 import numpy as np
 
 spells = []
-pre_process_spells = []
 
 class Game:
     def __init__(self, screen, screen_size, background, menu, player1=None, player2=None) -> None:
@@ -52,11 +52,19 @@ class Game:
     def process_web_spell(self):
         # if len(pre_process_spells) == 0:
         #    return
+        if not os.path.exists("spells.csv"):
+            return
+        with open("spells.csv", "r") as file:
+            pre_process_spells = file.readlines()
         for str_spell in pre_process_spells:
+            str_spell = str_spell.split(",")
+            str_spell[1] = int(str_spell[1])
+            str_spell[2] = int(str_spell[2])
             if str_spell[2] == 1:
                 spells.append(Spell(str_spell[0], str_spell[1], self.player1, self.player2, self.player1.size))
             else:
                 spells.append(Spell(str_spell[0], str_spell[1] , self.player2, self.player1, self.player2.size))
+        os.remove("spells.csv")
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -84,7 +92,7 @@ class Game:
                     #self.clock.tick(180)
                     cv2.putText(self.frame, f"Victory for {spell.from_player.name}", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255), 2, cv2.LINE_4) #print(f"Player 2 choosed : {self.p2_choice[0]}")
         for remove in to_remove:
-            self.spells.remove(remove)
+            spells.remove(remove)
         if self.player1 is None or self.player2 is None:
             return
         if not self.player1.is_my_turn and not self.player2.is_my_turn:
