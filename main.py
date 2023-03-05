@@ -52,8 +52,8 @@ class Game:
         self.music_queue_launched = True
         self.time_select = 60
         
-        self.p1_won = pygame.transform.scale(pygame.image.load("images/p1won.png"), np.array((1,1))*self.screen_size[0]*0.2)
-        self.p2_won = pygame.transform.scale(pygame.image.load("images/p2won.png"), np.array((1,1))*self.screen_size[0]*0.2)
+        self.p2_won = pygame.transform.scale(pygame.image.load("images/p1won.png"), np.array((1,1))*self.screen_size[0]*0.2)
+        self.p1_won = pygame.transform.scale(pygame.image.load("images/p2won.png"), np.array((1,1))*self.screen_size[0]*0.2)
         
         self.whos_dead = None
         self.outro_max_time = 300
