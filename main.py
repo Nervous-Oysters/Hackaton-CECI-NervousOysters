@@ -36,6 +36,8 @@ class Game:
 
         self.intro_time = 180
 
+        self.music_queue_launched = False
+
     def handling_events(self):
         for event in pygame.event.get():
             match event.type:
@@ -86,11 +88,11 @@ class Game:
                 self.player2.start_turn()
                 self.turn = False
         if self.turn:
-            self.screen.blit(self.wand_on, self.player1.bar_position[1])
-            self.screen.blit(self.wand_off, self.player2.bar_position[0])
+            self.screen.blit(self.wand_on, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))
+            self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[0] + 32))
         else:
-            self.screen.blit(self.wand_on, self.player1.bar_position[0])
-            self.screen.blit(self.wand_off, self.player2.bar_position[1])
+            self.screen.blit(self.wand_on, (self.player2.bar_position[0] -32 , self.player2.bar_position[0]))
+            self.screen.blit(self.wand_off, (self.player1.bar_position[1], self.player1.bar_position[1] + 32))
 
     def handle_menu(self):
         for event in pygame.event.get():
