@@ -4,15 +4,15 @@ import pygame
 
 class Spell():
     
-    def __init__(self, animation_folder:str, damage, from_player, to_player, size=100, velocity=10):
+    def __init__(self, animation_folder:str, sound:str, damage, from_player, to_player, size=100, velocity=10):
         self.size = size
         self.damage = damage
         self.from_player = from_player
         self.to_player = to_player
         self.direction = self.from_player.direction # True : left
 
-        self.animation_folder = "animations/" + animation_folder # animations/fire-ball_20
-        self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_20/*
+        self.animation_folder = "animations/" + animation_folder # animations/fire-ball_10
+        self.sprites_list = os.listdir(self.animation_folder) # animations/fire-ball_10/*
         self.sprite_index = 0
         self.frame_counter = 0
         self.update_image(self.animation_folder + "/" + self.sprites_list[self.sprite_index])

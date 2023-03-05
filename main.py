@@ -39,8 +39,10 @@ class Game:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player1, self.player2, self.player1.size))
+                        self.player1.music_queue.append({"path": "sounds/fire.wav", "loop": 0})
                     if event.key == pygame.K_RIGHT:
                         self.spells.append(Spell("fire-ball_10", 5, self.player2, self.player1, self.player2.size))
+                        self.player2.music_queue.append({"path": "sounds/earth.wav", "loop": 0})
                     
     def update(self):
         cam = self.handle_cam()
@@ -114,11 +116,11 @@ class Game:
             raise Exception("Error in setting characters")
         match choose:
             case "up":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
-            case "left":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
+                return Player("players/daniel.json", "sprites/daniel/", player_position, bar_postition, direction, pose, players_size)
             case "right":
-                return Player("players/example.json", "sprites/", player_position, bar_postition, direction, pose, players_size)
+                return Player("players/louise.json", "sprites/louise/", player_position, bar_postition, direction, pose, players_size)
+            case "left":
+                return Player("players/jacques.json", "sprites/jacques/", player_position, bar_postition, direction, pose, players_size)
             case _:
                 raise Exception("Error in choose of characters")
         
@@ -204,8 +206,8 @@ if __name__ == "__main__":
     
     pygame.init()
     screen = pygame.display.set_mode(screen_size)
-    p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
-    p2 = Player("players/example.json", "sprites/", (900, 500), (0, 0), False, None, 100)
+    #p1 = Player("players/example.json", "sprites/", (100, 500), (0, 0), True, None, 100)
+    p2 = Player("players/daniel.json", "sprites/daniel/", (900, 500), (0, 0), False, None, 100)
     game = Game(screen, screen_size, bg, menu, None, p2)
     game.run()
     game.webcam.release()

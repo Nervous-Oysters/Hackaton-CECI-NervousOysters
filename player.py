@@ -11,7 +11,7 @@ def load_json(filename):
 
 class Player():
 
-    def __init__(self, filename, sprites_folder, position, bar_position, direction:bool, pose, size=100, animation="t-pose_60"):
+    def __init__(self, filename, sprites_folder, position, bar_position, direction:bool, pose, size=100, animation="standby_60"):
         player_characteristics = load_json(filename)
         self.name = player_characteristics.get("name")
         self.pv = player_characteristics.get("pv")
