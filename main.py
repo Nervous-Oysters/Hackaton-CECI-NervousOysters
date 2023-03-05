@@ -34,8 +34,17 @@ class Game:
         self.wand_on = pygame.image.load("images/wand_on.png")
         self.wand_off = pygame.image.load("images/wand_off.png")
 
-        self.intro_time = 180
+        self.intro_time_max = 180
+        self.intro_time_current = 0
+        self.counter_symbol = [
+            pygame.transform.scale(pygame.image.load("animations/counter/1.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/2.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/3.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+            pygame.transform.scale(pygame.image.load("animations/counter/go.gif"), np.array((1,1))*self.screen_size[0]*0.2),
+        ]
         self.music_queue_launched = True
+        
+        self.time_select = 60
 
     def handling_events(self):
         for event in pygame.event.get():
@@ -63,6 +72,15 @@ class Game:
                     pass
         for remove in to_remove:
             self.spells.remove(remove)
+        if self.player1 is None or self.player2 is None:
+            return
+        if not self.player1.is_my_turn and not self.player2.is_my_turn:
+            if not self.turn:
+                self.player1.start_turn()
+                self.turn = True
+            else:
+                self.player2.start_turn()
+                self.turn = False
 
     def display(self):
         self.screen.blit(self.background, (0, 0))
@@ -73,24 +91,23 @@ class Game:
         pygame.draw.rect(screen, color, self.player2.health_bar)
         for spell in self.spells:
             self.screen.blit(spell.image, spell.position)
-        pygame.display.flip()
-
-    def handle_turn(self):
-        if self.player1 is None or self.player2 is None:
-            return
-        if not self.player1.is_my_turn and not self.player2.is_my_turn:
-            if not self.turn:
-                self.player1.start_turn()
-                self.turn = True
-            else:
-                self.player2.start_turn()
-                self.turn = False
         if self.turn:
             self.screen.blit(self.wand_on, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
             self.screen.blit(self.wand_off, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
         else:
             self.screen.blit(self.wand_on, (self.player2.bar_position[0], self.player2.bar_position[1] + 48))
             self.screen.blit(self.wand_off, (self.player1.bar_position[0], self.player1.bar_position[1] + 48))
+        pygame.display.flip()
+        
+    def display_intro(self):
+        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.player1.image, self.player1.position)
+        self.screen.blit(self.player2.image, self.player2.position)
+        color = (0, 204, 0)
+        pygame.draw.rect(screen, color, self.player1.health_bar)
+        pygame.draw.rect(screen, color, self.player2.health_bar)
+        symbol_pos = 4*self.intro_time_current//self.intro_time_max
+        self.screen.blit(self.counter_symbol[symbol_pos], (self.screen_size[0]/2 - self.screen_size[1]/10, self.screen_size[1]/10))
         pygame.display.flip()
 
     def handle_menu(self):
@@ -104,11 +121,12 @@ class Game:
             choose1 = Mainpipe.choose_player(cam["left"])
             print(choose1)
         else:
-            print(f"Player 1 choosed : {self.p1_choice[0]}")
+            #print(f"Player 1 choosed : {self.p1_choice[0]}")
+            pass
         if choose1:
             if self.p1_choice[0] == choose1:
                 self.p1_choice[1] += 1
-                if self.p1_choice[1] >= 120:  # 2 secondes
+                if self.p1_choice[1] >= self.time_select:  # 2 secondes
                     self.set_p1(choose1, cam["left"])
             else:
                 self.p1_choice = [choose1, 0]
@@ -118,11 +136,12 @@ class Game:
             choose2 = Mainpipe.choose_player(cam["right"])
             print(choose2)
         else:
-            print(f"Player 2 choosed : {self.p2_choice[0]}")
+            #print(f"Player 2 choosed : {self.p2_choice[0]}")
+            pass
         if choose2:
             if self.p2_choice[0] == choose2:
                 self.p2_choice[1] += 1
-                if self.p2_choice[1] >= 120:  # 2 secondes
+                if self.p2_choice[1] >= self.time_select:  # 2 secondes
                     self.set_p2(choose2, cam["right"])
             else:
                 self.p2_choice = [choose2, 0]
@@ -221,18 +240,17 @@ class Game:
                 except:
                     pass
                 self.music_queue_launched = True
-
-            while self.intro_time >= 0:
+                
+            while self.intro_time_current < self.intro_time_max:
                 self.player1.update(0)
                 self.player2.update(0)
-                if self.intro_time == 0:
+                self.display_intro()
+                self.intro_time_current += 1
+                if self.intro_time_current == self.intro_time_max:
                     self.player1.change_animation("fighting_40")
                     self.player2.change_animation("fighting_40")
-                self.intro_time -= 1
-                self.display()
                 self.clock.tick(60)
             self.handling_events()
-            self.handle_turn()
             self.update()
             self.display()
             self.clock.tick(60)
