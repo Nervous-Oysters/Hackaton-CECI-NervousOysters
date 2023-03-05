@@ -4,7 +4,7 @@ import pygame
 
 class Spell():
     
-    def __init__(self, animation_folder:str, damage, from_player, to_player, size=100, velocity=10):
+    def __init__(self, animation_folder:str, damage, from_player, to_player, size=100, velocity=10, name=None):
         self.size = size
         self.damage = damage
         self.from_player = from_player
@@ -19,6 +19,8 @@ class Spell():
         self.animation_speed = int(self.animation_folder.split('_')[-1]) # nb of frame before update
         self.velocity = velocity # pixel per frame
         self.position = self.from_player.position
+
+        self.name = name
         
         
     def update(self):
