@@ -35,6 +35,7 @@ class Game:
         self.wand_off = pygame.image.load("images/wand_off.png")
 
         self.intro_time = 180
+        self.music_queue_launched = False
 
         self.music_queue_launched = False
 
@@ -231,7 +232,7 @@ class Game:
                     self.player2.change_animation("fighting_40")
                 self.intro_time -= 1
                 self.display()
-                #self.clock.tick(60)
+                self.clock.tick(60)
                 print(self.intro_time)
             self.handling_events()
             self.update()

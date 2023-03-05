@@ -37,7 +37,7 @@ def loop_through_people(frame, keypoints_with_scores, edges, confidence_threshol
 
 def defense_move1(person):#throw arm infront of chest
     #6: right shoulder, 8: right elbow, 10: right wrist && 0= y, 1 = x
-    if person == 0: return None
+    if type(person) == int: return None
     if person[6][0]<person[8][0] and person[8][0]>person[10][0]:
         if person[6][1]< person[8][1] and person[8][1]<person[10][1]:
             return True
@@ -45,7 +45,7 @@ def defense_move1(person):#throw arm infront of chest
 
 def defense_move2(person):#throw arms in air
     #5:left shoulder,6: right shoulder, 7: left elbow, 8:right elbow, 9:left wrist, 10:right wrist
-    if person == 0: return None
+    if type(person) == int: return None
     if person[5][0]> person[7][0] and person[7][0]> person[9][0]:#left side
         if person[6][0] > person[8][0] and person[8][0] > person[10][0]:#right side
             return True
@@ -53,7 +53,7 @@ def defense_move2(person):#throw arms in air
 
 def defense_move3(person):#jumping jack
     #11:left hip, 12:right hip, 13: left knee, 14: right knee, 15: left ankle, 16:right ankle
-    if person == 0: return None
+    if type(person) == int: return None
     if person[5][0]> person[7][0] and person[7][0]> person[9][0]:#upper left side
         if person[6][0] > person[8][0] and person[8][0] > person[10][0]:#upper right side
             if person[11][1]< person[13][1] and person[13][1]<person[15][1]:#lower left side
